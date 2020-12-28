@@ -92,12 +92,12 @@ void CombinerAudioProcessor::changeProgramName (int index, const juce::String& n
 //==============================================================================
 void CombinerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-
+    temporaryOutput = new juce::AudioBuffer<float>(getTotalNumOutputChannels(), samplesPerBlock);
 }
 
 void CombinerAudioProcessor::releaseResources()
 {
-
+    delete(temporaryOutput);
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -129,8 +129,38 @@ void CombinerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    // clear unused output channels
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+
+    //clear temporary buffer
+    for (unsigned int i{ 0 }; i < totalNumOutputChannels; ++i)
+        temporaryOutput->clear(i, 0, temporaryOutput->getNumSamples());
+
+    for (unsigned int inputChannelNo{ 0 }; inputChannelNo < totalNumInputChannels; ++inputChannelNo)
+    {
+        auto inputData = buffer.getReadPointer(inputChannelNo);
+        temporaryOutput->addFrom(
+            (inputChannelNo % 2) % totalNumOutputChannels,
+            0,
+            inputData,
+            buffer.getNumSamples(),
+            1.0F
+        );
+    }
+
+    // copy the data from the temporary buffer to the output
+    for (unsigned int i{ 0 }; i < totalNumOutputChannels; ++i)
+    {
+        auto output = buffer.getWritePointer(i);
+        
+        for (unsigned int j{ 0 }; j < buffer.getNumSamples(); ++j)
+        {
+            output[j] = temporaryOutput->getSample(i, j);
+        }
+    }
+
 
 
 }
