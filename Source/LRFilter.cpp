@@ -12,22 +12,34 @@
 
 LRFilter::LRFilter() 
 {
+    loX = new juce::AudioBuffer<float>(numChannels, order);
+    loY = new juce::AudioBuffer<float>(numChannels, order);
+    hiX = new juce::AudioBuffer<float>(numChannels, order);
+    hiY = new juce::AudioBuffer<float>(numChannels, order);
     reset();
 };
 
 LRFilter::LRFilter(FilterType t, double newCutoff, unsigned int newOrder, 
     double newFs, unsigned int newNumChannels)
 {
+    setOrder(newOrder, false);
+    setNumChannels(newNumChannels);
+    loX = new juce::AudioBuffer<float>(numChannels, order);
+    loY = new juce::AudioBuffer<float>(numChannels, order);
+    hiX = new juce::AudioBuffer<float>(numChannels, order);
+    hiY = new juce::AudioBuffer<float>(numChannels, order);
     reset();
     setType(t, false);
     setCutoffFrequency(newCutoff, false);
-    setOrder(newOrder, false);
     setSampleRate(newFs, false);
-    setNumChannels(newNumChannels);
     prepare();
 }
 
-LRFilter::~LRFilter() {}
+LRFilter::~LRFilter() 
+{
+    delete(loX); delete(loY);
+    delete(hiX); delete(hiY);
+}
 
 void LRFilter::setType(FilterType newType, bool runPrepare)
 {
@@ -173,14 +185,14 @@ void LRFilter::prepare2ndOrder()
 void LRFilter::prepare4thOrder()
 {
     //calculate the first four powers of omega at cutoff freq
-    double omega[4];
+    double omega[4] = { 0.0, 0.0, 0.0, 0.0 };
     omega[0] = 2 * juce::MathConstants<double>::pi * cutoff;
     omega[1] = omega[0] * omega[0];     //omega[0] ^ 2
     omega[2] = omega[1] * omega[0];     //omega[0] ^ 3
     omega[3] = omega[1] * omega[1];     //omega[0] ^ 4
 
     //calculate the first four powers of the gain
-    double k[4];
+    double k[4] = { 0.0, 0.0, 0.0, 0.0 };
     k[0] = omega[0] / std::tan(juce::MathConstants<double>::pi * cutoff / Fs);
     k[1] = k[0] * k[0];     // k[0] ^ 2
     k[2] = k[1] * k[0];     // k[0] ^ 3

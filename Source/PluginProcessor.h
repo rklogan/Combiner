@@ -53,9 +53,27 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==============================================================================
+    void reset();
+    void prepare();
+    void resetAndPrepare();
+
 private:
-    unsigned int outputChannels{ 2 };
-    juce::AudioBuffer<float>* temporaryOutput{ NULL };
+    unsigned int numChannels{ 2 };
+    bool loAndHiLinked{ true };
+    double fc[2]{ 750.0, 750.0 };
+    double w[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double k[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double a[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double b[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double loX[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double loY[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double hiX[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double hiY[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double tmp1{ 0.0 }, tmp2{ 0.0 }, tmp_a{ 0.0 };
+
+    void prepHelper(bool low = true);
+    void calculateCoefficients(bool low = true);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };

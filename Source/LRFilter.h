@@ -11,7 +11,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <juce_dsp/processors/juce_LinkwitzRileyFilter.h>
 
 enum FilterType{ hipass, lopass };
 
@@ -167,8 +166,6 @@ private:
     void prepare2ndOrder();
     void prepare4thOrder();
     void prepare8thOrder();
-
-    // TODO: Refactor to filter 2/4/8
 
     void loPass2(juce::AudioBuffer<float>* buffer);
     void loPass4(juce::AudioBuffer<float>* buffer);
