@@ -141,32 +141,41 @@ void CombinerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         auto channelData = buffer.getWritePointer(channelNo);
         for (unsigned int sampleNo{ 0 }; sampleNo < buffer.getNumSamples(); ++sampleNo)
         {
-            double input = channelData[sampleNo];
-            double* x_mem = hipass ? hiX[channelNo] : loX[channelNo];
-            double* y_mem = hipass ? hiY[channelNo] : loY[channelNo];
-            double output = a[hipass][0] * input
-                + a[hipass][1] * x_mem[1]
-                + a[hipass][2] * x_mem[2]
-                + a[hipass][3] * x_mem[3]
-                + a[hipass][4] * x_mem[4]
-                - b[hipass][1] * y_mem[1]
-                - b[hipass][2] * y_mem[2]
-                - b[hipass][3] * y_mem[3]
-                - b[hipass][4] * y_mem[4];
-
-            x_mem[4] = x_mem[3];
-            x_mem[3] = x_mem[2];
-            x_mem[2] = x_mem[1];
-            x_mem[1] = input;
-            y_mem[4] = y_mem[3];
-            y_mem[3] = y_mem[2];
-            y_mem[2] = y_mem[1];
-            y_mem[1] = output;
-
-            channelData[sampleNo] = output;
+            channelData[sampleNo] = filterSample4(channelData[sampleNo], channelNo, true);
         }
     }
 
+}
+
+float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, bool hipass)
+{
+    //select the filter type
+    unsigned int mode = hipass ? 1 : 0;
+    double* x_mem = hipass ? hiX[channelNo] : loX[channelNo];
+    double* y_mem = hipass ? hiY[channelNo] : loY[channelNo];
+
+    //Apply transfer function
+    double output = a[hipass][0] * inputSample
+        + a[hipass][1] * x_mem[1]
+        + a[hipass][2] * x_mem[2]
+        + a[hipass][3] * x_mem[3]
+        + a[hipass][4] * x_mem[4]
+        - b[hipass][1] * y_mem[1]
+        - b[hipass][2] * y_mem[2]
+        - b[hipass][3] * y_mem[3]
+        - b[hipass][4] * y_mem[4];
+
+    //propogate memory
+    x_mem[4] = x_mem[3];
+    x_mem[3] = x_mem[2];
+    x_mem[2] = x_mem[1];
+    x_mem[1] = inputSample;
+    y_mem[4] = y_mem[3];
+    y_mem[3] = y_mem[2];
+    y_mem[2] = y_mem[1];
+    y_mem[1] = output;
+
+    return output;
 }
 
 //==============================================================================

@@ -74,6 +74,7 @@ private:
 
     void prepHelper(bool low = true);
     void calculateCoefficients(bool low = true);
+    float filterSample4(float input, unsigned int channelNo, bool hipass = false);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };
