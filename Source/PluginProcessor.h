@@ -56,8 +56,19 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
+    /**
+    * Sets all filter memory to 0.0
+    */
     void reset();
+    /**
+    * Calculates the values of all the required filter co-efficients for both filters
+    */
     void prepare();
+    /**
+    * Helper function to call reset() then prepare()
+    * @see reset()
+    * @see prepare()
+    */
     void resetAndPrepare();
 
 private:
@@ -74,11 +85,55 @@ private:
     double hiY[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double tmp1{ 0.0 }, tmp2{ 0.0 }, tmp_a{ 0.0 };
 
+    /**
+    * Helper function that calculates all intermediary parameters for a filter
+    * @param type The type of filter. If the lopass and hipass have the same cutoff frequency this function only needs to be called once with any value for type.
+    */
     void prepHelper(FilterType type);
+
+    /**
+    * Helper function to calculate the filter coefficients
+    * @param type Chooses whether to update the lopass or hipass filter
+    */
     void calculateCoefficients(FilterType type);
+    
+    /**
+    * Applies a filter to the input sample. Choose whether to use a second, fourth, or eigth order Linkwitz-Riley filter
+    * @param inputSample The sample to be processed
+    * @param channelNo The channel number in the filter
+    * @param type The filter to apply
+    * @return The filtered output sample
+    * @see filterSample2
+    * @see filterSample4
+    * @see filterSample8
+    */
     float filterSample(float inputSample, unsigned int channelNo, FilterType type);
+
+    /**
+    * Helper function to apply a 2nd order LinkWitz-Riley Filter
+    * @param inputSample The sample to be processed
+    * @param channelNo The channel number in the filter
+    * @param type The filter to apply
+    * @return The filtered output sample
+    */
     float filterSample2(float inputSample, unsigned int channelNo, FilterType type);
+    
+    /**
+    * Helper function to apply a 4th order LinkWitz-Riley Filter
+    * @param inputSample The sample to be processed
+    * @param channelNo The channel number in the filter
+    * @param type The filter to apply
+    * @return The filtered output sample
+    */
     float filterSample4(float inputSample, unsigned int channelNo, FilterType type);
+    
+    /**
+    * Helper function to apply a 8th order LinkWitz-Riley Filter
+    * @param inputSample The sample to be processed
+    * @param channelNo The channel number in the filter
+    * @param type The filter to apply
+    * @return The filtered output sample
+    */
     float filterSample8(float inputSample, unsigned int channelNo, FilterType type);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)

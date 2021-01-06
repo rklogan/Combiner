@@ -157,7 +157,6 @@ void CombinerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             outputData[sampleNo] += filterSample(inputData[sampleNo], channelNo % 2, FilterType::hipass);
         }
     }
-
 }
 
 //==============================================================================
