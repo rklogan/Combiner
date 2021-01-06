@@ -241,7 +241,15 @@ void CombinerAudioProcessor::prepHelper(FilterType type)
 
 void CombinerAudioProcessor::prepHelper2(FilterType type)
 {
-    // TODO
+    int i = type == FilterType::lopass ? 0 : 1;
+
+    w[i][1] = juce::MathConstants<double>::pi * fc[i];
+    w[i][2] = w[i][1] * w[i][1];
+    k[i][1] = w[i][1] / tan(w[i][1] / getSampleRate());
+    k[i][2] = k[i][1] * k[i][1];
+
+    tmp1 = 2 * k[i][1] * w[i][1];
+    tmp2 = k[i][2] + w[i][2] + tmp1;
 }
 
 void CombinerAudioProcessor::prepHelper4(FilterType type)
@@ -289,7 +297,14 @@ void CombinerAudioProcessor::calculateCoefficients(FilterType type)
 
 void CombinerAudioProcessor::calculateCoefficients2(FilterType type)
 {
-    //TODO
+    int i = type == FilterType::lopass ? 0 : 1;
+
+    a[i][0] = (type == FilterType::lopass ? w[i][2] : k[i][2]) / tmp2;
+    a[i][1] = (type == FilterType::lopass ? (2.0 * w[i][2]) : (-2.0 * k[i][2])) / tmp2;
+    a[i][2] = a[i][0];
+
+    b[i][1] = (2.0 * w[i][2] - 2.0 * k[i][2]) / tmp2;
+    b[i][2] = (k[i][2] + w[i][2] - tmp1) / tmp2;
 }
 
 void CombinerAudioProcessor::calculateCoefficients4(FilterType type)
@@ -330,8 +345,26 @@ float CombinerAudioProcessor::filterSample(float inputSample, unsigned int chann
 
 float CombinerAudioProcessor::filterSample2(float inputSample, unsigned int channelNo, FilterType type)
 {
-    //TODO
-    return inputSample;
+    // select filter type
+    unsigned int mode = type == FilterType::lopass ? 0 : 1;
+    double* x_mem = type == FilterType::lopass ? loX[channelNo] : hiX[channelNo];
+    double* y_mem = type == FilterType::lopass ? loY[channelNo] : hiY[channelNo];
+
+    //process
+    double output = a[mode][0] * inputSample
+        + a[mode][1] * x_mem[1]
+        + a[mode][2] * x_mem[2]
+        - b[mode][1] * y_mem[1]
+        - b[mode][2] * y_mem[2];
+
+    //propogate memory
+    x_mem[2] = x_mem[1];
+    x_mem[1] = inputSample;
+    y_mem[2] = y_mem[1];
+    y_mem[1] = output;
+
+    //apply polarity flip to hpf and return
+    return (type == FilterType::lopass ? output : (-1.0 * output));
 }
 
 float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, FilterType type)
