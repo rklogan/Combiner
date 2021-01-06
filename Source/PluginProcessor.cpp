@@ -16,7 +16,7 @@ CombinerAudioProcessor::CombinerAudioProcessor()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                       //.withInput  ("Input 2", juce::AudioChannelSet::stereo(), true)
+                       .withInput  ("Input 2", juce::AudioChannelSet::stereo(), true)
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
@@ -136,12 +136,25 @@ void CombinerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    for (unsigned int channelNo{ 0 }; channelNo < totalNumInputChannels; ++channelNo)
+    //process lopass
+    unsigned int channelNo{ 0 };
+    for (; channelNo < 2; ++channelNo)
     {
         auto channelData = buffer.getWritePointer(channelNo);
         for (unsigned int sampleNo{ 0 }; sampleNo < buffer.getNumSamples(); ++sampleNo)
         {
-            channelData[sampleNo] = filterSample(channelData[sampleNo], channelNo, FilterType::hipass);
+            channelData[sampleNo] = filterSample(channelData[sampleNo], channelNo, FilterType::lopass);
+        }
+    }
+
+    //process hipass
+    for (; channelNo < 4; ++channelNo)
+    {
+        auto inputData = buffer.getReadPointer(channelNo);
+        auto outputData = buffer.getWritePointer(channelNo % 2);
+        for (unsigned int sampleNo{ 0 }; sampleNo < buffer.getNumSamples(); ++sampleNo)
+        {
+            outputData[sampleNo] += filterSample(inputData[sampleNo], channelNo % 2, FilterType::hipass);
         }
     }
 
