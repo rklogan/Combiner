@@ -90,12 +90,18 @@ private:
     * @param type The type of filter. If the lopass and hipass have the same cutoff frequency this function only needs to be called once with any value for type.
     */
     void prepHelper(FilterType type);
+    void prepHelper2(FilterType type);
+    void prepHelper4(FilterType type);
+    void prepHelper8(FilterType type);
 
     /**
     * Helper function to calculate the filter coefficients
     * @param type Chooses whether to update the lopass or hipass filter
     */
     void calculateCoefficients(FilterType type);
+    void calculateCoefficients2(FilterType type);
+    void calculateCoefficients4(FilterType type);
+    void calculateCoefficients8(FilterType type);
     
     /**
     * Applies a filter to the input sample. Choose whether to use a second, fourth, or eigth order Linkwitz-Riley filter

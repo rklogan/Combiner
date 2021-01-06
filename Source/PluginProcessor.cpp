@@ -207,26 +207,9 @@ void CombinerAudioProcessor::reset()
 
 void CombinerAudioProcessor::prepare()
 {
-    //prepare the lpf
     prepHelper(FilterType::lopass);
     calculateCoefficients(FilterType::lopass);
-
-    //TODO: Fix this optimization
-
-    //prepare the intermediate parameters for hpf
-    //if (loAndHiLinked)
-    //{
-    //    // copy omegas and gains
-    //    for (unsigned int i{ 1 }; i < 5; ++i)
-    //    {
-    //        w[1][i] = w[0][i];
-    //        k[1][i] = w[0][i];
-    //    }
-    //}
-    //else
     prepHelper(FilterType::hipass);
-
-    //calculate the coefficients of the hpf
     calculateCoefficients(FilterType::hipass);
 }
 
@@ -238,6 +221,30 @@ void CombinerAudioProcessor::resetAndPrepare()
 
 
 void CombinerAudioProcessor::prepHelper(FilterType type)
+{
+    switch (order)
+    {
+    case 2:
+        prepHelper2(type);
+        break;
+    case 4:
+        prepHelper4(type);
+        break;
+    case 8:
+        prepHelper8(type);
+        break;
+    default:
+        throw new _exception;
+        break;
+    }
+}
+
+void CombinerAudioProcessor::prepHelper2(FilterType type)
+{
+    // TODO
+}
+
+void CombinerAudioProcessor::prepHelper4(FilterType type)
 {
     int i = type == FilterType::lopass ? 0 : 1;
 
@@ -256,7 +263,36 @@ void CombinerAudioProcessor::prepHelper(FilterType type)
     tmp_a = 4 * w[i][2] * k[i][2] + 2 * tmp1 + k[i][4] + 2 * tmp2 + w[i][4];
 }
 
+void CombinerAudioProcessor::prepHelper8(FilterType type)
+{
+    //TODO
+}
+
 void CombinerAudioProcessor::calculateCoefficients(FilterType type)
+{
+    switch (order)
+    {
+    case 2:
+        calculateCoefficients2(type);
+        break;
+    case 4:
+        calculateCoefficients4(type);
+        break;
+    case 8:
+        calculateCoefficients8(type);
+        break;
+    default:
+        throw new _exception;
+        break;
+    }
+}
+
+void CombinerAudioProcessor::calculateCoefficients2(FilterType type)
+{
+    //TODO
+}
+
+void CombinerAudioProcessor::calculateCoefficients4(FilterType type)
 {
     int i = type == FilterType::lopass ? 0 : 1;
 
@@ -270,6 +306,11 @@ void CombinerAudioProcessor::calculateCoefficients(FilterType type)
     a[i][2] = 6 * a[i][0];
     a[i][3] = a[i][1];
     a[i][4] = a[i][0];
+}
+
+void CombinerAudioProcessor::calculateCoefficients8(FilterType type)
+{
+    //TODO
 }
 
 float CombinerAudioProcessor::filterSample(float inputSample, unsigned int channelNo, FilterType type)
