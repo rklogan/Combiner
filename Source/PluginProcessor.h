@@ -61,7 +61,7 @@ public:
     void resetAndPrepare();
 
 private:
-    unsigned int numChannels{ 2 };
+    unsigned int numChannels{ 2 }, order{ 4 };
     bool loAndHiLinked{ true };
     double fc[2]{ 750.0, 750.0 };
     double w[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
@@ -76,7 +76,10 @@ private:
 
     void prepHelper(FilterType type);
     void calculateCoefficients(FilterType type);
-    float filterSample4(float input, unsigned int channelNo, FilterType type);
+    float filterSample(float inputSample, unsigned int channelNo, FilterType type);
+    float filterSample2(float inputSample, unsigned int channelNo, FilterType type);
+    float filterSample4(float inputSample, unsigned int channelNo, FilterType type);
+    float filterSample8(float inputSample, unsigned int channelNo, FilterType type);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };

@@ -141,43 +141,10 @@ void CombinerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         auto channelData = buffer.getWritePointer(channelNo);
         for (unsigned int sampleNo{ 0 }; sampleNo < buffer.getNumSamples(); ++sampleNo)
         {
-            channelData[sampleNo] = filterSample4(channelData[sampleNo], channelNo, FilterType::hipass);
+            channelData[sampleNo] = filterSample(channelData[sampleNo], channelNo, FilterType::hipass);
         }
     }
 
-}
-
-
-
-float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, FilterType type)
-{
-    //select the filter type
-    unsigned int mode = type == FilterType::hipass ? 1 : 0;
-    double* x_mem = type == FilterType::hipass ? hiX[channelNo] : loX[channelNo];
-    double* y_mem = type == FilterType::hipass ? hiY[channelNo] : loY[channelNo];
-
-    //Apply transfer function
-    double output = a[mode][0] * inputSample
-        + a[mode][1] * x_mem[1]
-        + a[mode][2] * x_mem[2]
-        + a[mode][3] * x_mem[3]
-        + a[mode][4] * x_mem[4]
-        - b[mode][1] * y_mem[1]
-        - b[mode][2] * y_mem[2]
-        - b[mode][3] * y_mem[3]
-        - b[mode][4] * y_mem[4];
-
-    //propogate memory
-    x_mem[4] = x_mem[3];
-    x_mem[3] = x_mem[2];
-    x_mem[2] = x_mem[1];
-    x_mem[1] = inputSample;
-    y_mem[4] = y_mem[3];
-    y_mem[3] = y_mem[2];
-    y_mem[2] = y_mem[1];
-    y_mem[1] = output;
-
-    return output;
 }
 
 //==============================================================================
@@ -257,6 +224,7 @@ void CombinerAudioProcessor::resetAndPrepare()
     prepare();
 }
 
+
 void CombinerAudioProcessor::prepHelper(FilterType type)
 {
     int i = type == FilterType::lopass ? 0 : 1;
@@ -290,4 +258,62 @@ void CombinerAudioProcessor::calculateCoefficients(FilterType type)
     a[i][2] = 6 * a[i][0];
     a[i][3] = a[i][1];
     a[i][4] = a[i][0];
+}
+
+float CombinerAudioProcessor::filterSample(float inputSample, unsigned int channelNo, FilterType type)
+{
+    switch (order)
+    {
+    case 2:
+        return filterSample2(inputSample, channelNo, type);
+    case 4:
+        return filterSample4(inputSample, channelNo, type);
+    case 8:
+        return filterSample8(inputSample, channelNo, type);
+    default:
+        throw new _exception;
+    }
+}
+
+float CombinerAudioProcessor::filterSample2(float inputSample, unsigned int channelNo, FilterType type)
+{
+    //TODO
+    return inputSample;
+}
+
+float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, FilterType type)
+{
+    //select the filter type
+    unsigned int mode = type == FilterType::hipass ? 1 : 0;
+    double* x_mem = type == FilterType::hipass ? hiX[channelNo] : loX[channelNo];
+    double* y_mem = type == FilterType::hipass ? hiY[channelNo] : loY[channelNo];
+
+    //Apply transfer function
+    double output = a[mode][0] * inputSample
+        + a[mode][1] * x_mem[1]
+        + a[mode][2] * x_mem[2]
+        + a[mode][3] * x_mem[3]
+        + a[mode][4] * x_mem[4]
+        - b[mode][1] * y_mem[1]
+        - b[mode][2] * y_mem[2]
+        - b[mode][3] * y_mem[3]
+        - b[mode][4] * y_mem[4];
+
+    //propogate memory
+    x_mem[4] = x_mem[3];
+    x_mem[3] = x_mem[2];
+    x_mem[2] = x_mem[1];
+    x_mem[1] = inputSample;
+    y_mem[4] = y_mem[3];
+    y_mem[3] = y_mem[2];
+    y_mem[2] = y_mem[1];
+    y_mem[1] = output;
+
+    return output;
+}
+
+float CombinerAudioProcessor::filterSample8(float inputSample, unsigned int channelNo, FilterType type)
+{
+    // TODO
+    return inputSample;
 }
