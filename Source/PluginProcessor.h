@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 
+enum class FilterType { lopass, hipass };
+
 //==============================================================================
 /**
 */
@@ -72,9 +74,9 @@ private:
     double hiY[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double tmp1{ 0.0 }, tmp2{ 0.0 }, tmp_a{ 0.0 };
 
-    void prepHelper(bool low = true);
-    void calculateCoefficients(bool low = true);
-    float filterSample4(float input, unsigned int channelNo, bool hipass = false);
+    void prepHelper(FilterType type);
+    void calculateCoefficients(FilterType type);
+    float filterSample4(float input, unsigned int channelNo, FilterType type);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };

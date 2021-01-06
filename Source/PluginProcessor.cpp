@@ -141,29 +141,31 @@ void CombinerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         auto channelData = buffer.getWritePointer(channelNo);
         for (unsigned int sampleNo{ 0 }; sampleNo < buffer.getNumSamples(); ++sampleNo)
         {
-            channelData[sampleNo] = filterSample4(channelData[sampleNo], channelNo, true);
+            channelData[sampleNo] = filterSample4(channelData[sampleNo], channelNo, FilterType::hipass);
         }
     }
 
 }
 
-float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, bool hipass)
+
+
+float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, FilterType type)
 {
     //select the filter type
-    unsigned int mode = hipass ? 1 : 0;
-    double* x_mem = hipass ? hiX[channelNo] : loX[channelNo];
-    double* y_mem = hipass ? hiY[channelNo] : loY[channelNo];
+    unsigned int mode = type == FilterType::hipass ? 1 : 0;
+    double* x_mem = type == FilterType::hipass ? hiX[channelNo] : loX[channelNo];
+    double* y_mem = type == FilterType::hipass ? hiY[channelNo] : loY[channelNo];
 
     //Apply transfer function
-    double output = a[hipass][0] * inputSample
-        + a[hipass][1] * x_mem[1]
-        + a[hipass][2] * x_mem[2]
-        + a[hipass][3] * x_mem[3]
-        + a[hipass][4] * x_mem[4]
-        - b[hipass][1] * y_mem[1]
-        - b[hipass][2] * y_mem[2]
-        - b[hipass][3] * y_mem[3]
-        - b[hipass][4] * y_mem[4];
+    double output = a[mode][0] * inputSample
+        + a[mode][1] * x_mem[1]
+        + a[mode][2] * x_mem[2]
+        + a[mode][3] * x_mem[3]
+        + a[mode][4] * x_mem[4]
+        - b[mode][1] * y_mem[1]
+        - b[mode][2] * y_mem[2]
+        - b[mode][3] * y_mem[3]
+        - b[mode][4] * y_mem[4];
 
     //propogate memory
     x_mem[4] = x_mem[3];
@@ -227,8 +229,8 @@ void CombinerAudioProcessor::reset()
 void CombinerAudioProcessor::prepare()
 {
     //prepare the lpf
-    prepHelper();
-    calculateCoefficients();
+    prepHelper(FilterType::lopass);
+    calculateCoefficients(FilterType::lopass);
 
     //TODO: Fix this optimization
 
@@ -243,10 +245,10 @@ void CombinerAudioProcessor::prepare()
     //    }
     //}
     //else
-    prepHelper(false);
+    prepHelper(FilterType::hipass);
 
     //calculate the coefficients of the hpf
-    calculateCoefficients(false);
+    calculateCoefficients(FilterType::hipass);
 }
 
 void CombinerAudioProcessor::resetAndPrepare()
@@ -255,9 +257,9 @@ void CombinerAudioProcessor::resetAndPrepare()
     prepare();
 }
 
-void CombinerAudioProcessor::prepHelper(bool low)
+void CombinerAudioProcessor::prepHelper(FilterType type)
 {
-    int i = low ? 0 : 1;
+    int i = type == FilterType::lopass ? 0 : 1;
 
     w[i][1] = juce::MathConstants<double>::twoPi * fc[i];
     w[i][2] = w[i][1] * w[i][1];
@@ -274,17 +276,17 @@ void CombinerAudioProcessor::prepHelper(bool low)
     tmp_a = 4 * w[i][2] * k[i][2] + 2 * tmp1 + k[i][4] + 2 * tmp2 + w[i][4];
 }
 
-void CombinerAudioProcessor::calculateCoefficients(bool low)
+void CombinerAudioProcessor::calculateCoefficients(FilterType type)
 {
-    int i = low ? 0 : 1;
+    int i = type == FilterType::lopass ? 0 : 1;
 
     b[i][1] = (4 * (w[i][4] + tmp1 - k[i][4] - tmp2)) / tmp_a;
     b[i][2] = (6 * w[i][4] - 8 * w[i][2] * k[i][2] + 6 * k[i][4]) / tmp_a;
     b[i][3] = (4 * (w[i][4] - tmp1 + tmp2 - k[i][4])) / tmp_a;
     b[i][4] = (k[i][4] - 2 * tmp1 + w[i][4] - 2 * tmp2 + 4 * w[i][2] * k[i][2]) / tmp_a;
 
-    a[i][0] = (low ? w[i][4] : k[i][4]) / tmp_a;
-    a[i][1] = (low ? 4 : -4) * a[i][0];
+    a[i][0] = (type == FilterType::lopass ? w[i][4] : k[i][4]) / tmp_a;
+    a[i][1] = (type == FilterType::lopass ? 4 : -4) * a[i][0];
     a[i][2] = 6 * a[i][0];
     a[i][3] = a[i][1];
     a[i][4] = a[i][0];
