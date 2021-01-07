@@ -193,7 +193,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 void CombinerAudioProcessor::reset()
 {
-    for (unsigned int channel{ 0 }; channel < 2; ++channel)
+    for (unsigned int channel{ 0 }; channel < 4; ++channel)
     {
         for (unsigned int i{ 0 }; i < 5; ++i)
         {
@@ -271,9 +271,9 @@ void CombinerAudioProcessor::prepHelper4(FilterType type)
     tmp_a = 4 * w[i][2] * k[i][2] + 2 * tmp1 + k[i][4] + 2 * tmp2 + w[i][4];
 }
 
-void CombinerAudioProcessor::prepHelper8(FilterType type)
+void CombinerAudioProcessor::prepHelper8(FilterType type) 
 {
-    //TODO
+    prepHelper4(type);
 }
 
 void CombinerAudioProcessor::calculateCoefficients(FilterType type)
@@ -325,7 +325,7 @@ void CombinerAudioProcessor::calculateCoefficients4(FilterType type)
 
 void CombinerAudioProcessor::calculateCoefficients8(FilterType type)
 {
-    //TODO
+    calculateCoefficients4(type);
 }
 
 float CombinerAudioProcessor::filterSample(float inputSample, unsigned int channelNo, FilterType type)
@@ -367,12 +367,14 @@ float CombinerAudioProcessor::filterSample2(float inputSample, unsigned int chan
     return (type == FilterType::lopass ? output : (-1.0 * output));
 }
 
-float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, FilterType type)
+float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int channelNo, FilterType type, unsigned int stage)
 {
+    if (stage < 0 || stage > 1) throw new _exception;
+
     //select the filter type
     unsigned int mode = type == FilterType::hipass ? 1 : 0;
-    double* x_mem = type == FilterType::hipass ? hiX[channelNo] : loX[channelNo];
-    double* y_mem = type == FilterType::hipass ? hiY[channelNo] : loY[channelNo];
+    double* x_mem = type == FilterType::hipass ? hiX[channelNo + 2 * stage] : loX[channelNo + 2 * stage];
+    double* y_mem = type == FilterType::hipass ? hiY[channelNo + 2 * stage] : loY[channelNo + 2 * stage];
 
     //Apply transfer function
     double output = a[mode][0] * inputSample
@@ -400,6 +402,17 @@ float CombinerAudioProcessor::filterSample4(float inputSample, unsigned int chan
 
 float CombinerAudioProcessor::filterSample8(float inputSample, unsigned int channelNo, FilterType type)
 {
-    // TODO
-    return inputSample;
+    return filterSample4(
+        filterSample4(inputSample, channelNo, type, 0),
+        channelNo, 
+        type, 
+        1
+    );
+}
+
+float CombinerAudioProcessor::filterButter(float inputSample, unsigned int channelNo, FilterType type, unsigned int stage)
+{
+    if (stage < 0 || stage > 1) throw new _exception;
+
+    
 }

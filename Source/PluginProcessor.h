@@ -74,16 +74,21 @@ public:
     double b[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
 
 private:
-    unsigned int numChannels{ 2 }, order{ 2 };
+    unsigned int numChannels{ 2 }, order{ 8 };
     bool loAndHiLinked{ true };
     double fc[2]{ 750.0, 750.0 };
     double w[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double k[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
-    double loX[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
-    double loY[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
-    double hiX[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
-    double hiY[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double loX[4][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0},
+                      {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double loY[4][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0},
+                      {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double hiX[4][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0},
+                      {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+    double hiY[4][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0},
+                      {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double tmp1{ 0.0 }, tmp2{ 0.0 }, tmp_a{ 0.0 };
+    
 
     /**
     * Helper function that calculates all intermediary parameters for a filter
@@ -131,7 +136,7 @@ private:
     * @param type The filter to apply
     * @return The filtered output sample
     */
-    float filterSample4(float inputSample, unsigned int channelNo, FilterType type);
+    float filterSample4(float inputSample, unsigned int channelNo, FilterType type, unsigned int stage=0);
     
     /**
     * Helper function to apply a 8th order LinkWitz-Riley Filter
@@ -141,6 +146,7 @@ private:
     * @return The filtered output sample
     */
     float filterSample8(float inputSample, unsigned int channelNo, FilterType type);
+    float filterButter(float inputSample, unsigned int channelNo, FilterType type, unsigned int stage = 0);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };
