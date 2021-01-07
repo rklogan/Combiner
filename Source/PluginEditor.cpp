@@ -31,7 +31,7 @@ void CombinerAudioProcessorEditor::paint (juce::Graphics& g)
     /*juce::String ni = juce::String(numIns);
     juce::String no = juce::String(numOuts);
     juce::String op = ni + juce::String(" ") + no;*/
-    juce::String lpf_a = juce::String("lpf a: ")
+    /*juce::String lpf_a = juce::String("lpf a: ")
         + juce::String(audioProcessor.a[0][0]) + ' '
         + juce::String(audioProcessor.a[0][1]) + ' '
         + juce::String(audioProcessor.a[0][2]);
@@ -46,7 +46,7 @@ void CombinerAudioProcessorEditor::paint (juce::Graphics& g)
         + juce::String(audioProcessor.b[1][1]) + ' '
         + juce::String(audioProcessor.b[1][2]);
     juce::String op = lpf_a + '\n' + lpf_b + '\n' + hpf_a + '\n' + hpf_b;
-    g.drawFittedText(op, getLocalBounds(), juce::Justification::centred, 1);
+    g.drawFittedText(op, getLocalBounds(), juce::Justification::centred, 1);*/
 }
 
 void CombinerAudioProcessorEditor::resized()
