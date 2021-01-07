@@ -39,10 +39,16 @@ private:
     juce::TextButton linkButton;
     juce::OwnedArray<juce::TextButton> slopeButtons;
     juce::Slider lpfFreqSlider, hpfFreqSlider;
-    juce::Label lopassfilter, hipassfilter;
+    juce::Label lopassfilter, hipassfilter, title;
 
     const juce::String LINK_TEXT = juce::String("<- LINK ->");
     const juce::String UNLINK_TEXT = juce::String("<- UNLINK ->");
+
+    const juce::Colour RICH_BLACK = juce::Colour(0x11, 0x35, 0x37);
+    const juce::Colour CHARCOAL = juce::Colour(0x37, 0x50, 0x5C);
+    const juce::Colour MAUVE_TAUPE = juce::Colour(0x96, 0x61, 0x6B);
+    const juce::Colour ULTRA_RED = juce::Colour(0xF7, 0x6F, 0x8E);
+    const juce::Colour BLANCHED_ALMOND = juce::Colour(0xFF, 0xEA, 0xD0);
 
     void setupLinkButton();
     void setupSlopeButtons();

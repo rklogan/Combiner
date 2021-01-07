@@ -17,16 +17,25 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     setupLinkButton();
     setupSlopeButtons();
     setupFrequencySliders();
+
+    title.setFont(juce::Font(30.0f, juce::Font::bold));
+    title.setText("COMBINER", juce::dontSendNotification);
+    title.setColour(juce::Label::textColourId, RICH_BLACK);
+    title.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(title);
+
     lopassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
     lopassfilter.setText("Low-Pass Filter", juce::dontSendNotification);
     lopassfilter.setColour(juce::Label::textColourId, juce::Colours::black);
     lopassfilter.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(lopassfilter);
+
     hipassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
     hipassfilter.setText("High-Pass Filter", juce::dontSendNotification);
     hipassfilter.setColour(juce::Label::textColourId, juce::Colours::black);
     hipassfilter.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(hipassfilter);
+
     setSize (600, 300);
 }
 
@@ -44,26 +53,36 @@ void CombinerAudioProcessorEditor::resized()
 {
     const int width = getLocalBounds().getWidth();
     const int height = getLocalBounds().getHeight();
+    const int oneThirdWidth = width / 3;
+    const int oneNinthWidth = oneThirdWidth / 3;
+    const int twoThirdsWidth = oneThirdWidth * 2;
+    const int oneThirdHeight = height / 3;
+    const int twoThirdsHeight = 2 * oneThirdHeight;
+    const int oneSixthHeight = oneThirdHeight / 2;
 
-    juce::Rectangle<int> topLeft = juce::Rectangle<int>(0, 0, width / 3, height/2);
-    juce::Rectangle<int> btmLeft = juce::Rectangle<int>(0, height / 2, width / 3, height / 2);
-    juce::Rectangle<int> topMid = juce::Rectangle<int>(width / 3, 0, width / 3, height / 2);
-    juce::Rectangle<int> btmMid = juce::Rectangle<int>(width / 3, height / 2, width / 3, height / 2);
-    juce::Rectangle<int> topRight = juce::Rectangle<int>(2 * width / 3, 0, width / 3, height / 2);
-    juce::Rectangle<int> btmRight = juce::Rectangle<int>(2 * width / 3, height / 2, width / 3, height / 2);
+    juce::Rectangle<int> titleArea = juce::Rectangle<int>(0, 0, width, oneSixthHeight);
+    title.setBounds(titleArea);
 
-    lpfFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, width / 3, 18);
-    lpfFreqSlider.setBounds(btmLeft);
-    hpfFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, width / 3, 18);
-    hpfFreqSlider.setBounds(btmRight);
-    
+    juce::Rectangle<int> leftLabelArea = juce::Rectangle<int>(0, oneSixthHeight, oneThirdWidth, oneSixthHeight);
+    lopassfilter.setBounds(leftLabelArea);
+
+    juce::Rectangle<int> slopeButtonArea = juce::Rectangle<int>(oneThirdWidth, oneSixthHeight, oneThirdWidth, oneSixthHeight + oneThirdHeight);
     for (auto* b : slopeButtons)
-        b->setBounds(topMid.removeFromLeft(width / 9));
+        b->setBounds(slopeButtonArea.removeFromLeft(oneNinthWidth));
 
-    linkButton.setBounds(btmMid);
+    juce::Rectangle<int> rightLabelArea = juce::Rectangle<int>(twoThirdsWidth, oneSixthHeight, oneThirdWidth, oneSixthHeight);
+    hipassfilter.setBounds(rightLabelArea);
 
-    lopassfilter.setBounds(topLeft);
-    hipassfilter.setBounds(topRight);
+    juce::Rectangle<int> lpfSliderArea = juce::Rectangle<int>(0, oneThirdHeight, oneThirdWidth, twoThirdsHeight);
+    lpfFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, oneThirdWidth, 18);
+    lpfFreqSlider.setBounds(lpfSliderArea);
+
+    juce::Rectangle<int> hpfSliderArea = juce::Rectangle<int>(twoThirdsWidth, oneThirdHeight, oneThirdWidth, twoThirdsHeight);
+    hpfFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, oneThirdWidth, 18);
+    hpfFreqSlider.setBounds(hpfSliderArea);
+
+    juce::Rectangle<int> linkButtonArea = juce::Rectangle<int>(oneThirdWidth, twoThirdsHeight, oneThirdWidth, oneThirdHeight);
+    linkButton.setBounds(linkButtonArea);
 }
 
 void CombinerAudioProcessorEditor::buttonStateChanged(juce::Button* button){}
