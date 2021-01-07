@@ -219,6 +219,83 @@ void CombinerAudioProcessor::resetAndPrepare()
     prepare();
 }
 
+void CombinerAudioProcessor::setOrder(unsigned int newOrder, bool callReset, bool callPrepare)
+{
+    switch (newOrder)
+    {
+    case 2:
+    case 4:
+    case 8:
+        order = newOrder;
+        break;
+    default:
+        throw new _exception;
+        break;
+    }
+    if (callReset) 
+        reset();
+    if (callPrepare) 
+        prepare();
+}
+
+unsigned int CombinerAudioProcessor::getOrder() { return order; }
+
+void CombinerAudioProcessor::setSlope(unsigned int newSlope, bool callReset = false, bool callPrepare = false)
+{
+    setOrder(newSlope / 12, callReset, callPrepare);
+}
+
+unsigned int CombinerAudioProcessor::getSlope() { return 12 * order; }
+
+void CombinerAudioProcessor::setLinked(bool newLinked) { loAndHiLinked = newLinked; }
+
+bool CombinerAudioProcessor::getLinked() { return loAndHiLinked; }
+
+void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool callReset = false, bool callPrepare = false)
+{
+    fc[0] = newCutoff;
+    fc[1] = newCutoff;
+    if (callReset)
+        reset();
+    if (callPrepare)
+        prepare();
+}
+
+void CombinerAudioProcessor::setCutoffFrequencies(double newLow, double newHigh, bool callReset = false, bool callPrepare = false)
+{
+    fc[0] = newLow;
+    fc[1] = loAndHiLinked ? newLow : newHigh;
+    if (callReset)
+        reset();
+    if (callPrepare)
+        prepare();
+}
+
+void CombinerAudioProcessor::setLowPassCutoff(double newLow, bool callReset, bool callPrepare)
+{
+    fc[0] = newLow;
+    if (loAndHiLinked)
+        fc[1] = newLow;
+    if (callReset)
+        reset();
+    if (callPrepare)
+        prepare();
+}
+
+void CombinerAudioProcessor::setHighPassCutoff(double newHigh, bool callReset, bool callPrepare)
+{
+    fc[1] = newHigh;
+    if (loAndHiLinked)
+        fc[0] = newHigh;
+    if (callReset)
+        reset();
+    if (callPrepare)
+        prepare();
+}
+
+double CombinerAudioProcessor::getLowPassCutoff() { return fc[0]; }
+
+double CombinerAudioProcessor::getHighPassCutoff() { return fc[1]; }
 
 void CombinerAudioProcessor::prepHelper(FilterType type)
 {
@@ -408,11 +485,4 @@ float CombinerAudioProcessor::filterSample8(float inputSample, unsigned int chan
         type, 
         1
     );
-}
-
-float CombinerAudioProcessor::filterButter(float inputSample, unsigned int channelNo, FilterType type, unsigned int stage)
-{
-    if (stage < 0 || stage > 1) throw new _exception;
-
-    
 }

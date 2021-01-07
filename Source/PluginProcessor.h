@@ -55,7 +55,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    //==============================================================================
+
     /**
     * Sets all filter memory to 0.0
     */
@@ -71,8 +71,95 @@ public:
     */
     void resetAndPrepare();
 
+    //================================== UI Hooks ==================================
+    /**
+    * Set the order of the filter to be used
+    * @param newOrder The new order of filter to use. Must be 2, 4 or 8
+    * @param callReset true will reset the filter memories. Defaults to false
+    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
+    */
+    void setOrder(unsigned int newOrder, bool callReset = false, bool callPrepare = false);
+
+    /**
+    * Get the order of the filters
+    * @return The order of the filters
+    */
+    unsigned int getOrder();
+
+    /**
+    * Set the slope of the filters
+    * @param newSlope The new slope for the filter. Must be 12, 24 or 48.
+    * @param callReset true will reset the filter memories. Defaults to false
+    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
+    * @see setOrder()
+    */
+    void setSlope(unsigned int newSlope, bool callReset = false, bool callPrepare = false);
+
+    /**
+    * Get the slope of the filter
+    * @return The slope of the filter
+    */
+    unsigned int getSlope();
+
+    /**
+    * Set whether the two filters should have the same cutoff frequency
+    * @param newLinked true if the filters have the same cutoff frequency. false otherwise
+    */
+    void setLinked(bool newLinked);
+
+    /**
+    * Get whether the filters are linked
+    * @return true if the filters are linked. False otherwise.
+    */
+    bool getLinked();
+
+    /**
+    * Set both cutoff frequencies to the same value regardless of whether they are linked
+    * @param newCutoff The new cutoff frequency for both filters in Hz
+    * @param callReset true will reset the filter memories. Defaults to false
+    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
+    */
+    void setBothCutoffFrequencies(double newCutoff, bool callReset = false, bool callPrepare = false);
+
+    /**
+    * Set the cutoff for both filters independently
+    * @param newLow The new cutoff frequency for the low pass filter
+    * @param newHigh the new cutoff frequency for the high pass filter. If the two filters are linked, this parameter will be ignored
+    * @param callReset true will reset the filter memories. Defaults to false
+    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
+    */
+    void setCutoffFrequencies(double newLow, double newHigh, bool callReset = false, bool callPrepare = false);
+
+    /**
+    * Set the cutoff for the low pass filter.
+    * @param newLow The new cutoff frequency for the low pass filter. If the filters are linked, the high pass will also be updated.
+    * @param callReset true will reset the filter memories. Defaults to false
+    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
+    */
+    void setLowPassCutoff(double newLow, bool callReset = false, bool callPrepare = false);
+
+    /**
+    * Set the cutoff for the high pass filter.
+    * @param newHigh The new cutoff frequency for the high pass filter. If the filters are linked, the low pass will also be updated.
+    * @param callReset true will reset the filter memories. Defaults to false
+    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
+    */
+    void setHighPassCutoff(double newHigh, bool callReset = false, bool callPrepare = false);
+
+    /**
+    * Get the cutoff frequency of the low pass filter.
+    * @return The cutoff frequency of the low pass filter.
+    */
+    double getLowPassCutoff();
+
+    /**
+    * Get the cutoff frequency of the high pass filter.
+    * @return The cutoff frequency of the high pass filter.
+    */
+    double getHighPassCutoff();
+
 private:
-    unsigned int numChannels{ 2 }, order{ 8 };
+    unsigned int numChannels{ 2 }, order{ 4 };
     bool loAndHiLinked{ true };
     double fc[2]{ 750.0, 750.0 };
     double w[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
@@ -186,6 +273,7 @@ private:
     * @see filterSample4()
     */
     float filterSample8(float inputSample, unsigned int channelNo, FilterType type);
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };
