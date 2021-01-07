@@ -71,7 +71,6 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
     if (button == &linkButton)
     {
-        
         bool newState = !linkButton.getToggleState();
         linkButton.setToggleState(newState, juce::dontSendNotification);
         audioProcessor.setLinked(newState);
@@ -79,6 +78,15 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
             linkButton.setButtonText(UNLINK_TEXT);
         else
             linkButton.setButtonText(LINK_TEXT);
+    }
+    else
+    {
+        int index{ 0 };
+        for (; index < 3; ++index) 
+            if (slopeButtons.getUnchecked(index) == button) break;
+        
+        unsigned int order = pow(2, index + 1);
+        audioProcessor.setOrder(order, false, true);
     }
 }
 
@@ -108,6 +116,7 @@ void CombinerAudioProcessorEditor::setupSlopeButtons()
 
         b->setRadioGroupId(1);
         b->setClickingTogglesState(true);
+        b->addListener(this);
 
         switch (i)
         {
