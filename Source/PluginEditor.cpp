@@ -74,7 +74,6 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
         
         bool newState = !linkButton.getToggleState();
         linkButton.setToggleState(newState, juce::dontSendNotification);
-        lopassfilter.setText(juce::String(int(linkButton.getToggleState())), juce::dontSendNotification);
         audioProcessor.setLinked(newState);
         if (newState)
             linkButton.setButtonText(UNLINK_TEXT);
@@ -94,7 +93,6 @@ void CombinerAudioProcessorEditor::setupLinkButton()
         linkButton.setButtonText(UNLINK_TEXT);
     else
         linkButton.setButtonText(LINK_TEXT);
-    //linkButton.setState(juce::TextButton::ButtonState(linked));
     linkButton.setToggleState(linked, juce::dontSendNotification);
     linkButton.addListener(this);
     addAndMakeVisible(linkButton);
@@ -149,7 +147,6 @@ void CombinerAudioProcessorEditor::setupSlopeButtons()
 void CombinerAudioProcessorEditor::setupFrequencySliders()
 {
     lpfFreqSlider.setDoubleClickReturnValue(true, 750.0f);
-    //lpfFreqSlider.setMinAndMaxValues(20.0f, 22000.0f);
     lpfFreqSlider.setRange(20.0, 20000.0);
     lpfFreqSlider.setNumDecimalPlacesToDisplay(1);
     lpfFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
@@ -159,7 +156,6 @@ void CombinerAudioProcessorEditor::setupFrequencySliders()
     lpfFreqSlider.addListener(this);
 
     hpfFreqSlider.setDoubleClickReturnValue(true, 750.0f);
-    //hpfFreqSlider.setMinAndMaxValues(20.0f, 22000.0f);
     hpfFreqSlider.setRange(20.0, 20000.0);
     hpfFreqSlider.setNumDecimalPlacesToDisplay(1);
     hpfFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
