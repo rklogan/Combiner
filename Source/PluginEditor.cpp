@@ -20,21 +20,32 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
 
     title.setFont(juce::Font(30.0f, juce::Font::bold));
     title.setText("COMBINER", juce::dontSendNotification);
-    title.setColour(juce::Label::textColourId, RICH_BLACK);
+    title.setColour(juce::Label::textColourId, POWDER_BLUE);
     title.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(title);
 
     lopassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
     lopassfilter.setText("Low-Pass Filter", juce::dontSendNotification);
-    lopassfilter.setColour(juce::Label::textColourId, juce::Colours::black);
+    lopassfilter.setColour(juce::Label::textColourId, POWDER_BLUE);
     lopassfilter.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(lopassfilter);
 
     hipassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
     hipassfilter.setText("High-Pass Filter", juce::dontSendNotification);
-    hipassfilter.setColour(juce::Label::textColourId, juce::Colours::black);
+    hipassfilter.setColour(juce::Label::textColourId, POWDER_BLUE);
     hipassfilter.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(hipassfilter);
+
+    getLookAndFeel().setColour(juce::Slider::thumbColourId, HONEYDEW);
+    getLookAndFeel().setColour(juce::Slider::rotarySliderFillColourId, CALEDON_BLUE);
+    getLookAndFeel().setColour(juce::Slider::rotarySliderOutlineColourId, POWDER_BLUE);
+    getLookAndFeel().setColour(juce::Slider::textBoxTextColourId, POWDER_BLUE);
+    getLookAndFeel().setColour(juce::Slider::textBoxOutlineColourId, CALEDON_BLUE);
+
+    getLookAndFeel().setColour(juce::TextButton::buttonColourId, POWDER_BLUE);
+    getLookAndFeel().setColour(juce::TextButton::buttonOnColourId, CALEDON_BLUE);
+    getLookAndFeel().setColour(juce::TextButton::textColourOffId, CALEDON_BLUE);
+    getLookAndFeel().setColour(juce::TextButton::textColourOnId, POWDER_BLUE);
 
     setSize (600, 300);
 }
@@ -46,7 +57,7 @@ CombinerAudioProcessorEditor::~CombinerAudioProcessorEditor()
 //==============================================================================
 void CombinerAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll(PRUSSIAN_BLUE);
 }
 
 void CombinerAudioProcessorEditor::resized()

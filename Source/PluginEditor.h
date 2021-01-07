@@ -44,11 +44,12 @@ private:
     const juce::String LINK_TEXT = juce::String("<- LINK ->");
     const juce::String UNLINK_TEXT = juce::String("<- UNLINK ->");
 
-    const juce::Colour RICH_BLACK = juce::Colour(0x11, 0x35, 0x37);
-    const juce::Colour CHARCOAL = juce::Colour(0x37, 0x50, 0x5C);
-    const juce::Colour MAUVE_TAUPE = juce::Colour(0x96, 0x61, 0x6B);
-    const juce::Colour ULTRA_RED = juce::Colour(0xF7, 0x6F, 0x8E);
-    const juce::Colour BLANCHED_ALMOND = juce::Colour(0xFF, 0xEA, 0xD0);
+    const juce::Colour IMPERIAL_RED = juce::Colour(0xE6, 0x39, 0x46);
+    //const juce::Colour HONEYDEW = juce::Colour(0xF1, 0xFA, 0xEE);
+    const juce::Colour HONEYDEW = juce::Colour(0xD8, 0xF1, 0xD0);
+    const juce::Colour POWDER_BLUE = juce::Colour(0xA8, 0xDA, 0xDC);
+    const juce::Colour CALEDON_BLUE = juce::Colour(0x45, 0x7B, 0x9D);
+    const juce::Colour PRUSSIAN_BLUE = juce::Colour(0x1D, 0x35, 0x57);
 
     void setupLinkButton();
     void setupSlopeButtons();
