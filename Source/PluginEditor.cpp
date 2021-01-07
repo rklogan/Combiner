@@ -69,6 +69,18 @@ void CombinerAudioProcessorEditor::resized()
 void CombinerAudioProcessorEditor::buttonStateChanged(juce::Button* button){}
 void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
+    if (button == &linkButton)
+    {
+        
+        bool newState = !linkButton.getToggleState();
+        linkButton.setToggleState(newState, juce::dontSendNotification);
+        lopassfilter.setText(juce::String(int(linkButton.getToggleState())), juce::dontSendNotification);
+        audioProcessor.setLinked(newState);
+        if (newState)
+            linkButton.setButtonText(UNLINK_TEXT);
+        else
+            linkButton.setButtonText(LINK_TEXT);
+    }
 }
 
 void CombinerAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {}
@@ -82,7 +94,8 @@ void CombinerAudioProcessorEditor::setupLinkButton()
         linkButton.setButtonText(UNLINK_TEXT);
     else
         linkButton.setButtonText(LINK_TEXT);
-    linkButton.setState(juce::TextButton::ButtonState(linked));
+    //linkButton.setState(juce::TextButton::ButtonState(linked));
+    linkButton.setToggleState(linked, juce::dontSendNotification);
     linkButton.addListener(this);
     addAndMakeVisible(linkButton);
 }
