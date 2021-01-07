@@ -4,8 +4,6 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="D2XMyt" name="Combiner">
     <GROUP id="{39D6FC9D-03CF-6E31-9E3E-0CDFEB05681D}" name="Source">
-      <FILE id="a11PaO" name="LRFilter.cpp" compile="1" resource="0" file="Source/LRFilter.cpp"/>
-      <FILE id="rYsYRM" name="LRFilter.h" compile="0" resource="0" file="Source/LRFilter.h"/>
       <FILE id="QYMXVk" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="qrh9l5" name="PluginProcessor.h" compile="0" resource="0"
