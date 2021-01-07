@@ -13,7 +13,21 @@
 CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
-    setSize (400, 300);
+    setResizable(true, true);
+    setupLinkButton();
+    setupSlopeButtons();
+    setupFrequencySliders();
+    lopassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
+    lopassfilter.setText("Low-Pass Filter", juce::dontSendNotification);
+    lopassfilter.setColour(juce::Label::textColourId, juce::Colours::black);
+    lopassfilter.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(lopassfilter);
+    hipassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
+    hipassfilter.setText("High-Pass Filter", juce::dontSendNotification);
+    hipassfilter.setColour(juce::Label::textColourId, juce::Colours::black);
+    hipassfilter.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(hipassfilter);
+    setSize (600, 300);
 }
 
 CombinerAudioProcessorEditor::~CombinerAudioProcessorEditor()
@@ -24,32 +38,123 @@ CombinerAudioProcessorEditor::~CombinerAudioProcessorEditor()
 void CombinerAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    int numIns = audioProcessor.getNumInputChannels();
-    int numOuts = audioProcessor.getNumOutputChannels();
-
-    /*juce::String ni = juce::String(numIns);
-    juce::String no = juce::String(numOuts);
-    juce::String op = ni + juce::String(" ") + no;*/
-    /*juce::String lpf_a = juce::String("lpf a: ")
-        + juce::String(audioProcessor.a[0][0]) + ' '
-        + juce::String(audioProcessor.a[0][1]) + ' '
-        + juce::String(audioProcessor.a[0][2]);
-    juce::String lpf_b = juce::String("lpf b: ")
-        + juce::String(audioProcessor.b[0][1]) + ' '
-        + juce::String(audioProcessor.b[0][2]);
-    juce::String hpf_a = juce::String("hpf a: ")
-        + juce::String(audioProcessor.a[1][0]) + ' '
-        + juce::String(audioProcessor.a[1][1]) + ' '
-        + juce::String(audioProcessor.a[1][2]);
-    juce::String hpf_b = juce::String("hpf b:")
-        + juce::String(audioProcessor.b[1][1]) + ' '
-        + juce::String(audioProcessor.b[1][2]);
-    juce::String op = lpf_a + '\n' + lpf_b + '\n' + hpf_a + '\n' + hpf_b;
-    g.drawFittedText(op, getLocalBounds(), juce::Justification::centred, 1);*/
 }
 
 void CombinerAudioProcessorEditor::resized()
 {
+    const int width = getLocalBounds().getWidth();
+    const int height = getLocalBounds().getHeight();
 
+    juce::Rectangle<int> topLeft = juce::Rectangle<int>(0, 0, width / 3, height/2);
+    juce::Rectangle<int> btmLeft = juce::Rectangle<int>(0, height / 2, width / 3, height / 2);
+    juce::Rectangle<int> topMid = juce::Rectangle<int>(width / 3, 0, width / 3, height / 2);
+    juce::Rectangle<int> btmMid = juce::Rectangle<int>(width / 3, height / 2, width / 3, height / 2);
+    juce::Rectangle<int> topRight = juce::Rectangle<int>(2 * width / 3, 0, width / 3, height / 2);
+    juce::Rectangle<int> btmRight = juce::Rectangle<int>(2 * width / 3, height / 2, width / 3, height / 2);
+
+    lpfFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, width / 3, 18);
+    lpfFreqSlider.setBounds(btmLeft);
+    hpfFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, width / 3, 18);
+    hpfFreqSlider.setBounds(btmRight);
+    
+    for (auto* b : slopeButtons)
+        b->setBounds(topMid.removeFromLeft(width / 9));
+
+    linkButton.setBounds(btmMid);
+
+    lopassfilter.setBounds(topLeft);
+    hipassfilter.setBounds(topRight);
+}
+
+void CombinerAudioProcessorEditor::buttonStateChanged(juce::Button* button){}
+void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
+{
+}
+
+void CombinerAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {}
+void CombinerAudioProcessorEditor::sliderDragStarted(juce::Slider* slider) {}
+void CombinerAudioProcessorEditor::sliderDragEnded(juce::Slider* slider) {}
+
+void CombinerAudioProcessorEditor::setupLinkButton()
+{
+    bool linked = audioProcessor.getLinked();
+    if (linked)
+        linkButton.setButtonText(UNLINK_TEXT);
+    else
+        linkButton.setButtonText(LINK_TEXT);
+    linkButton.setState(juce::TextButton::ButtonState(linked));
+    linkButton.addListener(this);
+    addAndMakeVisible(linkButton);
+}
+
+void CombinerAudioProcessorEditor::setupSlopeButtons()
+{
+    for (unsigned int i{ 0 }; i < 3; ++i)
+    {
+        unsigned int slope = i == 2 ? 48 : (12 * (i + 1));
+
+        auto* b = slopeButtons.add(new juce::TextButton(juce::String(slope) + " dB/8ve"));
+
+        b->setRadioGroupId(1);
+        b->setClickingTogglesState(true);
+
+        switch (i)
+        {
+        case 0:
+            b->setConnectedEdges(juce::Button::ConnectedOnRight);
+            break;
+        case 1:
+            b->setConnectedEdges(juce::Button::ConnectedOnRight + juce::Button::ConnectedOnLeft);
+            break;
+        case 2:
+            b->setConnectedEdges(juce::Button::ConnectedOnLeft);
+            break;
+        default:
+            break;
+        }
+
+        addAndMakeVisible(b);
+    }
+    
+    unsigned int order = audioProcessor.getOrder();
+    switch (order)
+    {
+    case 2:
+        slopeButtons.getUnchecked(0)->setToggleState(true, juce::dontSendNotification);
+        break;
+    case 4:
+        slopeButtons.getUnchecked(1)->setToggleState(true, juce::dontSendNotification);
+        break;
+    case 8:
+        slopeButtons.getUnchecked(2)->setToggleState(true, juce::dontSendNotification);
+        break;
+    default:
+        break;
+    }
+}
+
+void CombinerAudioProcessorEditor::setupFrequencySliders()
+{
+    lpfFreqSlider.setDoubleClickReturnValue(true, 750.0f);
+    //lpfFreqSlider.setMinAndMaxValues(20.0f, 22000.0f);
+    lpfFreqSlider.setRange(20.0, 20000.0);
+    lpfFreqSlider.setNumDecimalPlacesToDisplay(1);
+    lpfFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    lpfFreqSlider.setTextValueSuffix(juce::String("Hz"));
+    lpfFreqSlider.setValue(audioProcessor.getLowPassCutoff());
+    lpfFreqSlider.setSkewFactor(0.25f);
+    lpfFreqSlider.addListener(this);
+
+    hpfFreqSlider.setDoubleClickReturnValue(true, 750.0f);
+    //hpfFreqSlider.setMinAndMaxValues(20.0f, 22000.0f);
+    hpfFreqSlider.setRange(20.0, 20000.0);
+    hpfFreqSlider.setNumDecimalPlacesToDisplay(1);
+    hpfFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    hpfFreqSlider.setTextValueSuffix(juce::String("Hz"));
+    hpfFreqSlider.setValue(audioProcessor.getHighPassCutoff());
+    hpfFreqSlider.setSkewFactor(0.25f);
+    hpfFreqSlider.addListener(this);
+
+    addAndMakeVisible(lpfFreqSlider);
+    addAndMakeVisible(hpfFreqSlider);
 }

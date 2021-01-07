@@ -240,7 +240,7 @@ void CombinerAudioProcessor::setOrder(unsigned int newOrder, bool callReset, boo
 
 unsigned int CombinerAudioProcessor::getOrder() { return order; }
 
-void CombinerAudioProcessor::setSlope(unsigned int newSlope, bool callReset = false, bool callPrepare = false)
+void CombinerAudioProcessor::setSlope(unsigned int newSlope, bool callReset, bool callPrepare)
 {
     setOrder(newSlope / 12, callReset, callPrepare);
 }
@@ -251,7 +251,7 @@ void CombinerAudioProcessor::setLinked(bool newLinked) { loAndHiLinked = newLink
 
 bool CombinerAudioProcessor::getLinked() { return loAndHiLinked; }
 
-void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool callReset = false, bool callPrepare = false)
+void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool callReset, bool callPrepare)
 {
     fc[0] = newCutoff;
     fc[1] = newCutoff;
@@ -261,7 +261,7 @@ void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool cal
         prepare();
 }
 
-void CombinerAudioProcessor::setCutoffFrequencies(double newLow, double newHigh, bool callReset = false, bool callPrepare = false)
+void CombinerAudioProcessor::setCutoffFrequencies(double newLow, double newHigh, bool callReset, bool callPrepare)
 {
     fc[0] = newLow;
     fc[1] = loAndHiLinked ? newLow : newHigh;
