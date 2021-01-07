@@ -93,19 +93,57 @@ private:
     /**
     * Helper function that calculates all intermediary parameters for a filter
     * @param type The type of filter. If the lopass and hipass have the same cutoff frequency this function only needs to be called once with any value for type.
+    * @see prepHelper2()
+    * @see prepHelper4()
+    * @see prepHelper8()
     */
     void prepHelper(FilterType type);
+
+    /**
+    * Helper function that calculates all intermediary parameters for a filter
+    * @param type The type of filter. If the lopass and hipass have the same cutoff frequency this function only needs to be called once with any value for type.
+    */
     void prepHelper2(FilterType type);
+
+    /**
+    * Helper function that calculates all intermediary parameters for a filter
+    * @param type The type of filter. If the lopass and hipass have the same cutoff frequency this function only needs to be called once with any value for type.
+    */
     void prepHelper4(FilterType type);
+
+    /**
+    * Helper function that calculates all intermediary parameters for a filter
+    * @param type The type of filter. If the lopass and hipass have the same cutoff frequency this function only needs to be called once with any value for type.
+    * @see prepHelper4()
+    */
     void prepHelper8(FilterType type);
 
     /**
     * Helper function to calculate the filter coefficients
     * @param type Chooses whether to update the lopass or hipass filter
+    * @see calculateCoefficients2()
+    * @see calculateCoefficients4()
+    * @see calculateCoefficients8()
     */
     void calculateCoefficients(FilterType type);
+
+    /**
+    * Helper function to calculate the filter coefficients
+    * @param type Chooses whether to update the lopass or hipass filter
+    */
     void calculateCoefficients2(FilterType type);
+
+    /**
+    * Helper function to calculate the filter coefficients
+    * @param type Chooses whether to update the lopass or hipass filter
+    */
     void calculateCoefficients4(FilterType type);
+
+    /**
+    * Helper function to calculate the filter coefficients
+    * @param type Chooses whether to update the lopass or hipass filter
+    * @see calculateCoefficients4()
+    */
     void calculateCoefficients8(FilterType type);
     
     /**
@@ -134,6 +172,7 @@ private:
     * @param inputSample The sample to be processed
     * @param channelNo The channel number in the filter
     * @param type The filter to apply
+    * @param stage When cascading a value of 1 can be supplied to use a different history
     * @return The filtered output sample
     */
     float filterSample4(float inputSample, unsigned int channelNo, FilterType type, unsigned int stage=0);
@@ -144,9 +183,9 @@ private:
     * @param channelNo The channel number in the filter
     * @param type The filter to apply
     * @return The filtered output sample
+    * @see filterSample4()
     */
     float filterSample8(float inputSample, unsigned int channelNo, FilterType type);
-    float filterButter(float inputSample, unsigned int channelNo, FilterType type, unsigned int stage = 0);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };
