@@ -90,7 +90,25 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
     }
 }
 
-void CombinerAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) {}
+void CombinerAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) 
+{
+    if (slider == &lpfFreqSlider || slider == &hpfFreqSlider)
+    {
+        bool linked = audioProcessor.getLinked();
+        double newVal = slider->getValue();
+
+        if (linked) {
+            audioProcessor.setBothCutoffFrequencies(newVal, false, true);
+            lpfFreqSlider.setValue(newVal);
+            hpfFreqSlider.setValue(newVal);
+        }
+        else if (slider == &lpfFreqSlider)
+            audioProcessor.setLowPassCutoff(newVal, false, true);
+        else if (slider == &hpfFreqSlider)
+            audioProcessor.setHighPassCutoff(newVal, false, true);
+    }
+}
+
 void CombinerAudioProcessorEditor::sliderDragStarted(juce::Slider* slider) {}
 void CombinerAudioProcessorEditor::sliderDragEnded(juce::Slider* slider) {}
 
