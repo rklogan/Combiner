@@ -50,8 +50,6 @@ private:
     const juce::String LINK_TEXT = juce::String("<- LINK ->");
     const juce::String UNLINK_TEXT = juce::String("<- UNLINK ->");
 
-    const juce::Colour IMPERIAL_RED = juce::Colour(0xE6, 0x39, 0x46);
-    //const juce::Colour HONEYDEW = juce::Colour(0xF1, 0xFA, 0xEE);
     const juce::Colour HONEYDEW = juce::Colour(0xD8, 0xF1, 0xD0);
     const juce::Colour POWDER_BLUE = juce::Colour(0xA8, 0xDA, 0xDC);
     const juce::Colour CALEDON_BLUE = juce::Colour(0x45, 0x7B, 0x9D);
@@ -60,7 +58,6 @@ private:
     void setupLinkButton();
     void setupSlopeButtons();
     void setupFrequencySliders();
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessorEditor)
 };

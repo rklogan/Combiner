@@ -107,18 +107,6 @@ public:
     unsigned int getSlope();
 
     /**
-    * Set whether the two filters should have the same cutoff frequency
-    * @param newLinked true if the filters have the same cutoff frequency. false otherwise
-    */
-    //void setLinked(bool newLinked);
-
-    /**
-    * Get whether the filters are linked
-    * @return true if the filters are linked. False otherwise.
-    */
-    //bool getLinked();
-
-    /**
     * Set both cutoff frequencies to the same value regardless of whether they are linked
     * @param newCutoff The new cutoff frequency for both filters in Hz
     * @param callReset true will reset the filter memories. Defaults to false
@@ -179,7 +167,6 @@ private:
     double a[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double b[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double tmp1{ 0.0 }, tmp2{ 0.0 }, tmp_a{ 0.0 };
-    
 
     /**
     * Helper function that calculates all intermediary parameters for a filter

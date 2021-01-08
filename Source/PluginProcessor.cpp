@@ -251,10 +251,6 @@ void CombinerAudioProcessor::setSlope(unsigned int newSlope, bool callReset, boo
 
 unsigned int CombinerAudioProcessor::getSlope() { return 12 * order; }
 
-//void CombinerAudioProcessor::setLinked(bool newLinked) { loAndHiLinked = newLinked; }
-
-//bool CombinerAudioProcessor::getLinked() { return loAndHiLinked; }
-
 void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool callReset, bool callPrepare)
 {
     fc[0] = newCutoff;
@@ -490,5 +486,3 @@ float CombinerAudioProcessor::filterSample8(float inputSample, unsigned int chan
         1
     );
 }
-
-

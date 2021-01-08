@@ -52,8 +52,6 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     );
     audioProcessor.parameters.addParameterListener(LINKED_ID, this);
     
-    
-
     setSize (600, 300);
 }
 
@@ -113,17 +111,6 @@ void CombinerAudioProcessorEditor::parameterChanged(const juce::String& paramete
         else
             linkButton.setButtonText(LINK_TEXT);
     }
-    //if (button == &linkButton)
-//{
-//    bool newState = !linkButton.getToggleState();
-//    linkButton.setToggleState(newState, juce::dontSendNotification);
-//    audioProcessor.setLinked(newState);
-//    if (newState)
-//        linkButton.setButtonText(UNLINK_TEXT);
-//    else
-//        linkButton.setButtonText(LINK_TEXT);
-//}
-//else
 }
 
 void CombinerAudioProcessorEditor::buttonStateChanged(juce::Button* button){}
@@ -132,9 +119,7 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
     if (button == &linkButton)
     {
         bool newState = !linkButton.getToggleState();// ? 1.0f : 0.0f;
-        //audioProcessor.parameters.getRawParameterValue(LINKED_ID)->store(newState);
         linkButton.setToggleState(newState, juce::dontSendNotification);
-        //audioProcessor.setLinked(newState);
         if (!newState)
             linkButton.setButtonText(UNLINK_TEXT);
         else
@@ -156,7 +141,6 @@ void CombinerAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &lpfFreqSlider || slider == &hpfFreqSlider)
     {
-        //bool linked = audioProcessor.getLinked();
         bool linked = *(audioProcessor.parameters.getRawParameterValue(LINKED_ID)) > 0.5f;
         double newVal = slider->getValue();
 
