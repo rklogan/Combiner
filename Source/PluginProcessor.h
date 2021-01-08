@@ -10,6 +10,9 @@
 
 #include <JuceHeader.h>
 
+#define LINKED_ID "linked"
+#define LINKED_NAME "Linked"
+
 enum class FilterType { lopass, hipass };
 
 //==============================================================================
@@ -18,6 +21,8 @@ enum class FilterType { lopass, hipass };
 class CombinerAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    juce::AudioProcessorValueTreeState parameters;
+
     //==============================================================================
     CombinerAudioProcessor();
     ~CombinerAudioProcessor() override;
@@ -105,13 +110,13 @@ public:
     * Set whether the two filters should have the same cutoff frequency
     * @param newLinked true if the filters have the same cutoff frequency. false otherwise
     */
-    void setLinked(bool newLinked);
+    //void setLinked(bool newLinked);
 
     /**
     * Get whether the filters are linked
     * @return true if the filters are linked. False otherwise.
     */
-    bool getLinked();
+    //bool getLinked();
 
     /**
     * Set both cutoff frequencies to the same value regardless of whether they are linked
@@ -160,7 +165,6 @@ public:
 
 private:
     unsigned int numChannels{ 2 }, order{ 4 };
-    bool loAndHiLinked{ true };
     double fc[2]{ 750.0, 750.0 };
     double w[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double k[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
@@ -277,3 +281,4 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessor)
 };
+

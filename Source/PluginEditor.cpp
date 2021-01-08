@@ -47,6 +47,13 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     getLookAndFeel().setColour(juce::TextButton::textColourOffId, CALEDON_BLUE);
     getLookAndFeel().setColour(juce::TextButton::textColourOnId, POWDER_BLUE);
 
+    linkButtonAttachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
+        audioProcessor.parameters, LINKED_ID, linkButton
+    );
+    audioProcessor.parameters.addParameterListener(LINKED_ID, this);
+    
+    
+
     setSize (600, 300);
 }
 
@@ -96,20 +103,45 @@ void CombinerAudioProcessorEditor::resized()
     linkButton.setBounds(linkButtonArea);
 }
 
+void CombinerAudioProcessorEditor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+    if (parameterID == LINKED_ID)
+    {
+        bool newState = newValue < 0.5f;
+        if (!newState)
+            linkButton.setButtonText(UNLINK_TEXT);
+        else
+            linkButton.setButtonText(LINK_TEXT);
+    }
+    //if (button == &linkButton)
+//{
+//    bool newState = !linkButton.getToggleState();
+//    linkButton.setToggleState(newState, juce::dontSendNotification);
+//    audioProcessor.setLinked(newState);
+//    if (newState)
+//        linkButton.setButtonText(UNLINK_TEXT);
+//    else
+//        linkButton.setButtonText(LINK_TEXT);
+//}
+//else
+}
+
 void CombinerAudioProcessorEditor::buttonStateChanged(juce::Button* button){}
 void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
     if (button == &linkButton)
     {
-        bool newState = !linkButton.getToggleState();
+        bool newState = !linkButton.getToggleState();// ? 1.0f : 0.0f;
+        //audioProcessor.parameters.getRawParameterValue(LINKED_ID)->store(newState);
         linkButton.setToggleState(newState, juce::dontSendNotification);
-        audioProcessor.setLinked(newState);
-        if (newState)
+        //audioProcessor.setLinked(newState);
+        if (!newState)
             linkButton.setButtonText(UNLINK_TEXT);
         else
             linkButton.setButtonText(LINK_TEXT);
     }
     else
+    if(button != &linkButton)
     {
         int index{ 0 };
         for (; index < 3; ++index) 
@@ -124,7 +156,8 @@ void CombinerAudioProcessorEditor::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &lpfFreqSlider || slider == &hpfFreqSlider)
     {
-        bool linked = audioProcessor.getLinked();
+        //bool linked = audioProcessor.getLinked();
+        bool linked = *(audioProcessor.parameters.getRawParameterValue(LINKED_ID)) > 0.5f;
         double newVal = slider->getValue();
 
         if (linked) {
@@ -144,8 +177,8 @@ void CombinerAudioProcessorEditor::sliderDragEnded(juce::Slider* slider) {}
 
 void CombinerAudioProcessorEditor::setupLinkButton()
 {
-    bool linked = audioProcessor.getLinked();
-    if (linked)
+    bool linked = *(audioProcessor.parameters.getRawParameterValue(LINKED_ID)) < 0.5f;
+    if (!linked)
         linkButton.setButtonText(UNLINK_TEXT);
     else
         linkButton.setButtonText(LINK_TEXT);
@@ -224,3 +257,5 @@ void CombinerAudioProcessorEditor::setupFrequencySliders()
     addAndMakeVisible(lpfFreqSlider);
     addAndMakeVisible(hpfFreqSlider);
 }
+
+

@@ -20,8 +20,12 @@ CombinerAudioProcessor::CombinerAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
 #endif
+    parameters(*this, nullptr, juce::Identifier("Combiner"),
+        {
+            std::make_unique<juce::AudioParameterBool>(LINKED_ID, LINKED_NAME, true)
+        })
 {
 }
 
@@ -247,9 +251,9 @@ void CombinerAudioProcessor::setSlope(unsigned int newSlope, bool callReset, boo
 
 unsigned int CombinerAudioProcessor::getSlope() { return 12 * order; }
 
-void CombinerAudioProcessor::setLinked(bool newLinked) { loAndHiLinked = newLinked; }
+//void CombinerAudioProcessor::setLinked(bool newLinked) { loAndHiLinked = newLinked; }
 
-bool CombinerAudioProcessor::getLinked() { return loAndHiLinked; }
+//bool CombinerAudioProcessor::getLinked() { return loAndHiLinked; }
 
 void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool callReset, bool callPrepare)
 {
@@ -264,7 +268,7 @@ void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool cal
 void CombinerAudioProcessor::setCutoffFrequencies(double newLow, double newHigh, bool callReset, bool callPrepare)
 {
     fc[0] = newLow;
-    fc[1] = loAndHiLinked ? newLow : newHigh;
+    fc[1] = (*parameters.getRawParameterValue(LINKED_ID) > 0.5F) ? newLow : newHigh;
     if (callReset)
         reset();
     if (callPrepare)
@@ -274,7 +278,7 @@ void CombinerAudioProcessor::setCutoffFrequencies(double newLow, double newHigh,
 void CombinerAudioProcessor::setLowPassCutoff(double newLow, bool callReset, bool callPrepare)
 {
     fc[0] = newLow;
-    if (loAndHiLinked)
+    if (*parameters.getRawParameterValue(LINKED_ID) > 0.5F)
         fc[1] = newLow;
     if (callReset)
         reset();
@@ -285,7 +289,7 @@ void CombinerAudioProcessor::setLowPassCutoff(double newLow, bool callReset, boo
 void CombinerAudioProcessor::setHighPassCutoff(double newHigh, bool callReset, bool callPrepare)
 {
     fc[1] = newHigh;
-    if (loAndHiLinked)
+    if (*parameters.getRawParameterValue(LINKED_ID) > 0.5F)
         fc[0] = newHigh;
     if (callReset)
         reset();
@@ -486,3 +490,5 @@ float CombinerAudioProcessor::filterSample8(float inputSample, unsigned int chan
         1
     );
 }
+
+

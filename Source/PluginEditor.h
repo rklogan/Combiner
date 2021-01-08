@@ -14,7 +14,9 @@
 //==============================================================================
 /**
 */
-class CombinerAudioProcessorEditor  : public juce::AudioProcessorEditor,
+class CombinerAudioProcessorEditor  : 
+    public juce::AudioProcessorEditor,
+    public juce::AudioProcessorValueTreeState::Listener,
                                       public juce::Slider::Listener,
                                       public juce::Button::Listener
 {
@@ -27,7 +29,9 @@ public:
     void resized() override;
 
     //==============================================================================
-    void buttonStateChanged(juce::Button* button);
+    void parameterChanged(const juce::String& parameterID, float newValue) override;
+
+    void buttonStateChanged(juce::Button* button) override;
     void buttonClicked(juce::Button* button);
 
     void sliderValueChanged(juce::Slider* slider);
@@ -40,6 +44,8 @@ private:
     juce::OwnedArray<juce::TextButton> slopeButtons;
     juce::Slider lpfFreqSlider, hpfFreqSlider;
     juce::Label lopassfilter, hipassfilter, title;
+
+    juce::ScopedPointer<juce::AudioProcessorValueTreeState::ButtonAttachment> linkButtonAttachment;
 
     const juce::String LINK_TEXT = juce::String("<- LINK ->");
     const juce::String UNLINK_TEXT = juce::String("<- UNLINK ->");
@@ -55,7 +61,7 @@ private:
     void setupSlopeButtons();
     void setupFrequencySliders();
 
-    void switchSlopeButtons(unsigned int newSlope);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CombinerAudioProcessorEditor)
 };
+
