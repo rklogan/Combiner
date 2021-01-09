@@ -24,7 +24,8 @@ CombinerAudioProcessor::CombinerAudioProcessor()
 #endif
     parameters(*this, nullptr, juce::Identifier("Combiner"),
         {
-            std::make_unique<juce::AudioParameterBool>(LINKED_ID, LINKED_NAME, true)
+            std::make_unique<juce::AudioParameterBool>(LINKED_ID, LINKED_NAME, true),
+            std::make_unique<juce::AudioParameterChoice>(SLOPE_ID, SLOPE_NAME, slopes, 1)
         })
 {
 }
@@ -223,34 +224,6 @@ void CombinerAudioProcessor::resetAndPrepare()
     prepare();
 }
 
-void CombinerAudioProcessor::setOrder(unsigned int newOrder, bool callReset, bool callPrepare)
-{
-    switch (newOrder)
-    {
-    case 2:
-    case 4:
-    case 8:
-        order = newOrder;
-        break;
-    default:
-        throw new _exception;
-        break;
-    }
-    if (callReset) 
-        reset();
-    if (callPrepare) 
-        prepare();
-}
-
-unsigned int CombinerAudioProcessor::getOrder() { return order; }
-
-void CombinerAudioProcessor::setSlope(unsigned int newSlope, bool callReset, bool callPrepare)
-{
-    setOrder(newSlope / 12, callReset, callPrepare);
-}
-
-unsigned int CombinerAudioProcessor::getSlope() { return 12 * order; }
-
 void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool callReset, bool callPrepare)
 {
     fc[0] = newCutoff;
@@ -299,15 +272,16 @@ double CombinerAudioProcessor::getHighPassCutoff() { return fc[1]; }
 
 void CombinerAudioProcessor::prepHelper(FilterType type)
 {
-    switch (order)
+    unsigned int mode = int(round(parameters.getRawParameterValue(SLOPE_ID)->load()));
+    switch (mode)
     {
-    case 2:
+    case 0:
         prepHelper2(type);
         break;
-    case 4:
+    case 1:
         prepHelper4(type);
         break;
-    case 8:
+    case 2:
         prepHelper8(type);
         break;
     default:
@@ -355,15 +329,16 @@ void CombinerAudioProcessor::prepHelper8(FilterType type)
 
 void CombinerAudioProcessor::calculateCoefficients(FilterType type)
 {
-    switch (order)
+    unsigned int mode = round(parameters.getRawParameterValue(SLOPE_ID)->load());
+    switch (mode)
     {
-    case 2:
+    case 0:
         calculateCoefficients2(type);
         break;
-    case 4:
+    case 1:
         calculateCoefficients4(type);
         break;
-    case 8:
+    case 2:
         calculateCoefficients8(type);
         break;
     default:
@@ -407,16 +382,18 @@ void CombinerAudioProcessor::calculateCoefficients8(FilterType type)
 
 float CombinerAudioProcessor::filterSample(float inputSample, unsigned int channelNo, FilterType type)
 {
-    switch (order)
+    unsigned int mode = round(parameters.getRawParameterValue(SLOPE_ID)->load());
+    switch (mode)
     {
-    case 2:
+    case 0:
         return filterSample2(inputSample, channelNo, type);
-    case 4:
+    case 1:
         return filterSample4(inputSample, channelNo, type);
-    case 8:
+    case 2:
         return filterSample8(inputSample, channelNo, type);
     default:
         throw new _exception;
+        break;
     }
 }
 

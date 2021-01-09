@@ -12,8 +12,11 @@
 
 #define LINKED_ID "linked"
 #define LINKED_NAME "Linked"
+#define SLOPE_ID "slope_id"
+#define SLOPE_NAME "Slope"
 
 enum class FilterType { lopass, hipass };
+const juce::StringArray slopes("12", "24", "48");
 
 //==============================================================================
 /**
@@ -78,35 +81,6 @@ public:
 
     //================================== UI Hooks ==================================
     /**
-    * Set the order of the filter to be used
-    * @param newOrder The new order of filter to use. Must be 2, 4 or 8
-    * @param callReset true will reset the filter memories. Defaults to false
-    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
-    */
-    void setOrder(unsigned int newOrder, bool callReset = false, bool callPrepare = false);
-
-    /**
-    * Get the order of the filters
-    * @return The order of the filters
-    */
-    unsigned int getOrder();
-
-    /**
-    * Set the slope of the filters
-    * @param newSlope The new slope for the filter. Must be 12, 24 or 48.
-    * @param callReset true will reset the filter memories. Defaults to false
-    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
-    * @see setOrder()
-    */
-    void setSlope(unsigned int newSlope, bool callReset = false, bool callPrepare = false);
-
-    /**
-    * Get the slope of the filter
-    * @return The slope of the filter
-    */
-    unsigned int getSlope();
-
-    /**
     * Set both cutoff frequencies to the same value regardless of whether they are linked
     * @param newCutoff The new cutoff frequency for both filters in Hz
     * @param callReset true will reset the filter memories. Defaults to false
@@ -152,7 +126,7 @@ public:
     double getHighPassCutoff();
 
 private:
-    unsigned int numChannels{ 2 }, order{ 4 };
+    unsigned int numChannels{ 2 };
     double fc[2]{ 750.0, 750.0 };
     double w[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double k[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };

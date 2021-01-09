@@ -26,6 +26,12 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
 
     lopassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
     lopassfilter.setText("Low-Pass Filter", juce::dontSendNotification);
+
+    lopassfilter.setText(
+        juce::String(int(round(audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->load()))),
+        juce::dontSendNotification
+    );
+
     lopassfilter.setColour(juce::Label::textColourId, POWDER_BLUE);
     lopassfilter.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(lopassfilter);
@@ -51,6 +57,7 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
         audioProcessor.parameters, LINKED_ID, linkButton
     );
     audioProcessor.parameters.addParameterListener(LINKED_ID, this);
+    audioProcessor.parameters.addParameterListener(SLOPE_ID, this);
     
     setSize (600, 300);
 }
@@ -105,11 +112,21 @@ void CombinerAudioProcessorEditor::parameterChanged(const juce::String& paramete
 {
     if (parameterID == LINKED_ID)
     {
+        hipassfilter.setText("here", juce::dontSendNotification);
         bool newState = newValue < 0.5f;
         if (!newState)
             linkButton.setButtonText(UNLINK_TEXT);
         else
             linkButton.setButtonText(LINK_TEXT);
+    }
+    if (parameterID == SLOPE_ID)
+    {
+        unsigned int idx = round(newValue);
+        lopassfilter.setText("here", juce::dontSendNotification);
+        for (unsigned int i{ 0 }; i < 3; ++i)
+            slopeButtons[i]->setToggleState(i == idx, juce::dontSendNotification);
+        //lopassfilter.setText(juce::String(int(round(audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->load()))), juce::dontSendNotification);
+        audioProcessor.resetAndPrepare();
     }
 }
 
@@ -126,14 +143,14 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
             linkButton.setButtonText(LINK_TEXT);
     }
     else
-    if(button != &linkButton)
     {
         int index{ 0 };
-        for (; index < 3; ++index) 
+        for (; index < 3; ++index)
             if (slopeButtons.getUnchecked(index) == button) break;
-        
-        unsigned int order = pow(2, index + 1);
-        audioProcessor.setOrder(order, false, true);
+        audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->store(index);
+
+        lopassfilter.setText(juce::String(int(round(audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->load()))), juce::dontSendNotification);
+        audioProcessor.resetAndPrepare();
     }
 }
 
@@ -200,22 +217,10 @@ void CombinerAudioProcessorEditor::setupSlopeButtons()
 
         addAndMakeVisible(b);
     }
-    
-    unsigned int order = audioProcessor.getOrder();
-    switch (order)
-    {
-    case 2:
-        slopeButtons.getUnchecked(0)->setToggleState(true, juce::dontSendNotification);
-        break;
-    case 4:
-        slopeButtons.getUnchecked(1)->setToggleState(true, juce::dontSendNotification);
-        break;
-    case 8:
-        slopeButtons.getUnchecked(2)->setToggleState(true, juce::dontSendNotification);
-        break;
-    default:
-        break;
-    }
+
+    unsigned int idx = round(audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->load());
+    for (unsigned int i{ 0 }; i < 3; ++i)
+        slopeButtons[i]->setToggleState(i == idx, juce::dontSendNotification);
 }
 
 void CombinerAudioProcessorEditor::setupFrequencySliders()
@@ -241,5 +246,3 @@ void CombinerAudioProcessorEditor::setupFrequencySliders()
     addAndMakeVisible(lpfFreqSlider);
     addAndMakeVisible(hpfFreqSlider);
 }
-
-
