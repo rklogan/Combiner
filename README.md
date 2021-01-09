@@ -17,18 +17,18 @@ This process can be useful, for example, to blend a clean DI track and a distort
 ### Building
 1. Open [Combiner.jucer](Combiner.jucer) located at the root of this repository in Projucer.
 2. Expand the Modules tab and ensure that the following modules are present:
-  - juce_audio_basics
-  - juce_audio_devices
-  - juce_audio_formats
-  - juce_audio_plugin_client
-  - juce_audio_processors
-  - juce_audio_utils
-  - juce_core
-  - juce_data_structures
-  - juce_events
-  - juce_graphics
-  - juce_gui_basics
-  - juce_gui_extra
+   - juce_audio_basics
+   - juce_audio_devices
+   - juce_audio_formats
+   - juce_audio_plugin_client
+   - juce_audio_processors
+   - juce_audio_utils
+   - juce_core
+   - juce_data_structures
+   - juce_events
+   - juce_graphics
+   - juce_gui_basics
+   - juce_gui_extra
 3. If any are absent, you the '+' button in the Modules panel and locate the files on your device to add them.
 4. Launch the project in your IDE, and it will be configured to build the project.
 5. Set the build target to VST3 to build as a plugin.
