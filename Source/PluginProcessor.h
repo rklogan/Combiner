@@ -1,15 +1,8 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
 
+// Parameter Identifiers
 #define LINKED_ID "linked"
 #define LINKED_NAME "Linked"
 #define SLOPE_ID "slope_id"
@@ -19,18 +12,23 @@
 #define HIPASS_FREQ_ID "hpf_freq_id"
 #define HIPASS_FREQ_NAME "High-Pass Cutoff"
 
+// Global Parameters
 enum class FilterType { lopass, hipass };
 const juce::StringArray slopes("12", "24", "48");
 const juce::NormalisableRange<float> frequencyRange(20.0f, 20000.0f, 0.1f, 0.25f);
 
 //==============================================================================
 /**
+* CombinerAudioProcessor
+* Implements the logic for the audio thread.
+* @author Ryan Logan
+* 
 */
 class CombinerAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    // Holds all paramters visible in the UI
     juce::AudioProcessorValueTreeState parameters;
-    juce::String XMLDATA{ "" };
 
     //==============================================================================
     CombinerAudioProcessor();
@@ -69,7 +67,6 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-
     /**
     * Sets all filter memory to 0.0
     */
@@ -98,9 +95,19 @@ public:
 
 private:
     unsigned int numChannels{ 2 };
+
+    // centre frequency for lo-pass and hi-pass respectively
     double fc[2]{ 750.0, 750.0 };
+
+    // intermediate paramters for filters
+    // rows are left and right
+    // columns are used differently based on filter chosen
     double w[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double k[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+
+    // memory for the filters
+    // first two rows are left and right
+    // second two rows are left and right for the second stage of a cascaded filter
     double loX[4][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0},
                       {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double loY[4][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0},
@@ -109,8 +116,13 @@ private:
                       {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double hiY[4][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0},
                       {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+
+    // filter coefficients
+    // second row is only for the second stage of cascaded filters
     double a[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
     double b[2][5]{ {0.0,0.0,0.0,0.0,0.0},{0.0,0.0,0.0,0.0,0.0} };
+
+    // misc internal filter parameters
     double tmp1{ 0.0 }, tmp2{ 0.0 }, tmp_a{ 0.0 };
 
     /**

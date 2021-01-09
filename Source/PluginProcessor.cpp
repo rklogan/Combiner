@@ -24,6 +24,7 @@ CombinerAudioProcessor::CombinerAudioProcessor()
 #endif
     parameters(*this, nullptr, juce::Identifier("Combiner"),
         {
+            // Create all the UI parameters
             std::make_unique<juce::AudioParameterBool>(LINKED_ID, LINKED_NAME, true),
             std::make_unique<juce::AudioParameterChoice>(SLOPE_ID, SLOPE_NAME, slopes, 1),
             std::make_unique<juce::AudioParameterFloat>(LOPASS_FREQ_ID, LOPASS_FREQ_NAME, frequencyRange, 750.0f),
@@ -37,7 +38,7 @@ CombinerAudioProcessor::~CombinerAudioProcessor()
 
 }
 
-//==============================================================================
+//======================= JUCE Utility Functions ===============================
 const juce::String CombinerAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -98,7 +99,7 @@ void CombinerAudioProcessor::changeProgramName (int index, const juce::String& n
 {
 }
 
-//==============================================================================
+//======================= JUCE Playback Functions ==============================
 void CombinerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     resetAndPrepare();
@@ -138,7 +139,6 @@ void CombinerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-    int hipass = 1;
 
     // clear unused output channels
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
@@ -181,12 +181,14 @@ juce::AudioProcessorEditor* CombinerAudioProcessor::createEditor()
 //==============================================================================
 void CombinerAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
+    //generate XML of current state
     juce::XmlElement* combiner = new juce::XmlElement(juce::String("Combiner"));
     juce::XmlElement* hpf = new juce::XmlElement(juce::String("PARAM"));
     juce::XmlElement* linked = new juce::XmlElement(juce::String("PARAM"));
     juce::XmlElement* lpf = new juce::XmlElement(juce::String("PARAM"));
     juce::XmlElement* slope = new juce::XmlElement(juce::String("PARAM"));
 
+    // create xml elements for each parameter
     hpf->setAttribute(juce::Identifier("id"), HIPASS_FREQ_ID);
     hpf->setAttribute(
         juce::Identifier("value"),
@@ -211,19 +213,20 @@ void CombinerAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
         juce::String(parameters.getRawParameterValue(SLOPE_ID)->load())
     );
 
+    // add parameter elements to main element
     combiner->addChildElement(hpf);
     combiner->addChildElement(linked);
     combiner->addChildElement(lpf);
     combiner->addChildElement(slope);
 
-    combiner->writeTo(juce::File("write.log"));
+    //write to output
     copyXmlToBinary(*combiner, destData);
 }
 
 void CombinerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    //load saved state
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
-    xmlState->writeTo(juce::File("read.log"));
     if (xmlState.get() != nullptr)
         if (xmlState->hasTagName(parameters.state.getType()))
             parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
@@ -238,6 +241,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 void CombinerAudioProcessor::reset()
 {
+    // set all sample of all channels of memory to 0
     for (unsigned int channel{ 0 }; channel < 4; ++channel)
     {
         for (unsigned int i{ 0 }; i < 5; ++i)

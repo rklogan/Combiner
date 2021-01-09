@@ -16,6 +16,7 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     setResizable(true, true);
     setupLinkButton();
 
+    // Create text elements
     title.setFont(juce::Font(30.0f, juce::Font::bold));
     title.setText("COMBINER", juce::dontSendNotification);
     title.setColour(juce::Label::textColourId, POWDER_BLUE);
@@ -34,6 +35,7 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     hipassfilter.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(hipassfilter);
 
+    // setup colour scheme
     getLookAndFeel().setColour(juce::Slider::thumbColourId, HONEYDEW);
     getLookAndFeel().setColour(juce::Slider::rotarySliderFillColourId, CALEDON_BLUE);
     getLookAndFeel().setColour(juce::Slider::rotarySliderOutlineColourId, POWDER_BLUE);
@@ -45,6 +47,7 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     getLookAndFeel().setColour(juce::TextButton::textColourOffId, CALEDON_BLUE);
     getLookAndFeel().setColour(juce::TextButton::textColourOnId, POWDER_BLUE);
 
+    // Attach parameters to UI and add listeners
     linkButtonAttachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
         audioProcessor.parameters, LINKED_ID, linkButton
     );
@@ -61,6 +64,7 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     audioProcessor.parameters.addParameterListener(LOPASS_FREQ_ID, this);
     audioProcessor.parameters.addParameterListener(HIPASS_FREQ_ID, this);
     
+    // setup remaining UI elements
     setupSlopeButtons();
     setupFrequencySliders();
 
@@ -79,6 +83,7 @@ void CombinerAudioProcessorEditor::paint (juce::Graphics& g)
 
 void CombinerAudioProcessorEditor::resized()
 {
+    // calculate useful values
     const int width = getLocalBounds().getWidth();
     const int height = getLocalBounds().getHeight();
     const int oneThirdWidth = width / 3;
@@ -88,6 +93,7 @@ void CombinerAudioProcessorEditor::resized()
     const int twoThirdsHeight = 2 * oneThirdHeight;
     const int oneSixthHeight = oneThirdHeight / 2;
 
+    // create a grid, and assign each element to it's area
     juce::Rectangle<int> titleArea = juce::Rectangle<int>(0, 0, width, oneSixthHeight);
     title.setBounds(titleArea);
 
@@ -117,6 +123,7 @@ void CombinerAudioProcessorEditor::parameterChanged(const juce::String& paramete
 {
     if (parameterID == LINKED_ID)
     {
+        // make sure the link button is updated in UI
         bool newState = newValue < 0.5f;
         if (!newState)
             linkButton.setButtonText(UNLINK_TEXT);
@@ -125,13 +132,17 @@ void CombinerAudioProcessorEditor::parameterChanged(const juce::String& paramete
     }
     else if (parameterID == SLOPE_ID)
     {
+        // update UI for new slope
         unsigned int idx = round(newValue);
         for (unsigned int i{ 0 }; i < 3; ++i)
             slopeButtons[i]->setToggleState(i == idx, juce::dontSendNotification);
+
+        // inform the audio processor that data has changed
         audioProcessor.resetAndPrepare();
     }
     else if (parameterID == LOPASS_FREQ_ID || parameterID == HIPASS_FREQ_ID)
     {
+        // if the channels are linked, update the values of the opposite one
         if (*(audioProcessor.parameters.getRawParameterValue(LINKED_ID)) > 0.5f)
         {
             if (parameterID == LOPASS_FREQ_ID) {
@@ -143,6 +154,8 @@ void CombinerAudioProcessorEditor::parameterChanged(const juce::String& paramete
                 lpfFreqSlider.setValue(newValue, juce::dontSendNotification);
             }
         }
+
+        // inform the processor of the change
         audioProcessor.updateFrequencies(false, true);
     }
 }
@@ -152,7 +165,8 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
 {
     if (button == &linkButton)
     {
-        bool newState = !linkButton.getToggleState();// ? 1.0f : 0.0f;
+        //update UI
+        bool newState = !linkButton.getToggleState();
         linkButton.setToggleState(newState, juce::dontSendNotification);
         if (!newState)
             linkButton.setButtonText(UNLINK_TEXT);
@@ -161,9 +175,12 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
     }
     else
     {
+        // find the correct slope button
         int index{ 0 };
         for (; index < 3; ++index)
             if (slopeButtons.getUnchecked(index) == button) break;
+
+        // inform the processor of the change
         audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->store(index);
         audioProcessor.resetAndPrepare(); 
     }
