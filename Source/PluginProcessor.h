@@ -14,9 +14,14 @@
 #define LINKED_NAME "Linked"
 #define SLOPE_ID "slope_id"
 #define SLOPE_NAME "Slope"
+#define LOPASS_FREQ_ID "lpf_freq_id"
+#define LOPASS_FREQ_NAME "Low-Pass Cutoff"
+#define HIPASS_FREQ_ID "hpf_freq_id"
+#define HIPASS_FREQ_NAME "High-Pass Cutoff"
 
 enum class FilterType { lopass, hipass };
 const juce::StringArray slopes("12", "24", "48");
+const juce::NormalisableRange<float> frequencyRange(20.0f, 20000.0f, 0.1f, 0.25f);
 
 //==============================================================================
 /**
@@ -81,49 +86,14 @@ public:
 
     //================================== UI Hooks ==================================
     /**
-    * Set both cutoff frequencies to the same value regardless of whether they are linked
-    * @param newCutoff The new cutoff frequency for both filters in Hz
-    * @param callReset true will reset the filter memories. Defaults to false
-    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
+    * Updates the fequencies used in the processor.  
+    * If the filters are linked, both will be updated
+    * @param callReset If true, reset() will be called before returning
+    * @param callPrepare If true, prepare() will be called before returning
+    * @see reset()
+    * @see prepare()
     */
-    void setBothCutoffFrequencies(double newCutoff, bool callReset = false, bool callPrepare = false);
-
-    /**
-    * Set the cutoff for both filters independently
-    * @param newLow The new cutoff frequency for the low pass filter
-    * @param newHigh the new cutoff frequency for the high pass filter. If the two filters are linked, this parameter will be ignored
-    * @param callReset true will reset the filter memories. Defaults to false
-    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
-    */
-    void setCutoffFrequencies(double newLow, double newHigh, bool callReset = false, bool callPrepare = false);
-
-    /**
-    * Set the cutoff for the low pass filter.
-    * @param newLow The new cutoff frequency for the low pass filter. If the filters are linked, the high pass will also be updated.
-    * @param callReset true will reset the filter memories. Defaults to false
-    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
-    */
-    void setLowPassCutoff(double newLow, bool callReset = false, bool callPrepare = false);
-
-    /**
-    * Set the cutoff for the high pass filter.
-    * @param newHigh The new cutoff frequency for the high pass filter. If the filters are linked, the low pass will also be updated.
-    * @param callReset true will reset the filter memories. Defaults to false
-    * @param callPrepare true will recalculate the filter coefficients. Defaults to false
-    */
-    void setHighPassCutoff(double newHigh, bool callReset = false, bool callPrepare = false);
-
-    /**
-    * Get the cutoff frequency of the low pass filter.
-    * @return The cutoff frequency of the low pass filter.
-    */
-    double getLowPassCutoff();
-
-    /**
-    * Get the cutoff frequency of the high pass filter.
-    * @return The cutoff frequency of the high pass filter.
-    */
-    double getHighPassCutoff();
+    void updateFrequencies(bool callReset = false, bool callPrepare = false);
 
 private:
     unsigned int numChannels{ 2 };

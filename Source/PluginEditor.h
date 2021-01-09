@@ -17,8 +17,7 @@
 class CombinerAudioProcessorEditor  : 
     public juce::AudioProcessorEditor,
     public juce::AudioProcessorValueTreeState::Listener,
-                                      public juce::Slider::Listener,
-                                      public juce::Button::Listener
+    public juce::Button::Listener
 {
 public:
     CombinerAudioProcessorEditor (CombinerAudioProcessor&);
@@ -34,10 +33,6 @@ public:
     void buttonStateChanged(juce::Button* button) override;
     void buttonClicked(juce::Button* button);
 
-    void sliderValueChanged(juce::Slider* slider);
-    void sliderDragStarted(juce::Slider* slider);
-    void sliderDragEnded(juce::Slider* slider);
-
 private:
     CombinerAudioProcessor& audioProcessor;
     juce::TextButton linkButton;
@@ -46,6 +41,7 @@ private:
     juce::Label lopassfilter, hipassfilter, title;
 
     juce::ScopedPointer<juce::AudioProcessorValueTreeState::ButtonAttachment> linkButtonAttachment;
+    juce::ScopedPointer<juce::AudioProcessorValueTreeState::SliderAttachment> lpfSliderAttachment, hpfSliderAttachment;
 
     const juce::String LINK_TEXT = juce::String("<- LINK ->");
     const juce::String UNLINK_TEXT = juce::String("<- UNLINK ->");

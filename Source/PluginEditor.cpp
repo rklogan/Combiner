@@ -26,12 +26,6 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
 
     lopassfilter.setFont(juce::Font(25.0f, juce::Font::bold));
     lopassfilter.setText("Low-Pass Filter", juce::dontSendNotification);
-
-    lopassfilter.setText(
-        juce::String(int(round(audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->load()))),
-        juce::dontSendNotification
-    );
-
     lopassfilter.setColour(juce::Label::textColourId, POWDER_BLUE);
     lopassfilter.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(lopassfilter);
@@ -58,6 +52,15 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     );
     audioProcessor.parameters.addParameterListener(LINKED_ID, this);
     audioProcessor.parameters.addParameterListener(SLOPE_ID, this);
+
+    lpfSliderAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(
+        audioProcessor.parameters, LOPASS_FREQ_ID, lpfFreqSlider
+    );
+    hpfSliderAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(
+        audioProcessor.parameters, HIPASS_FREQ_ID, hpfFreqSlider
+    );
+    audioProcessor.parameters.addParameterListener(LOPASS_FREQ_ID, this);
+    audioProcessor.parameters.addParameterListener(HIPASS_FREQ_ID, this);
     
     setSize (600, 300);
 }
@@ -112,21 +115,34 @@ void CombinerAudioProcessorEditor::parameterChanged(const juce::String& paramete
 {
     if (parameterID == LINKED_ID)
     {
-        hipassfilter.setText("here", juce::dontSendNotification);
         bool newState = newValue < 0.5f;
         if (!newState)
             linkButton.setButtonText(UNLINK_TEXT);
         else
             linkButton.setButtonText(LINK_TEXT);
     }
-    if (parameterID == SLOPE_ID)
+    else if (parameterID == SLOPE_ID)
     {
         unsigned int idx = round(newValue);
-        lopassfilter.setText("here", juce::dontSendNotification);
         for (unsigned int i{ 0 }; i < 3; ++i)
             slopeButtons[i]->setToggleState(i == idx, juce::dontSendNotification);
-        //lopassfilter.setText(juce::String(int(round(audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->load()))), juce::dontSendNotification);
         audioProcessor.resetAndPrepare();
+    }
+    else if (parameterID == LOPASS_FREQ_ID || parameterID == HIPASS_FREQ_ID)
+    {
+        lopassfilter.setText("here", juce::dontSendNotification);
+        if (*(audioProcessor.parameters.getRawParameterValue(LINKED_ID)) > 0.5f)
+        {
+            if (parameterID == LOPASS_FREQ_ID) {
+                audioProcessor.parameters.getRawParameterValue(HIPASS_FREQ_ID)->store(newValue);
+                hpfFreqSlider.setValue(newValue, juce::dontSendNotification);
+            }
+            else {
+                audioProcessor.parameters.getRawParameterValue(LOPASS_FREQ_ID)->store(newValue);
+                lpfFreqSlider.setValue(newValue, juce::dontSendNotification);
+            }
+        }
+        audioProcessor.updateFrequencies(false, true);
     }
 }
 
@@ -148,33 +164,9 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
         for (; index < 3; ++index)
             if (slopeButtons.getUnchecked(index) == button) break;
         audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->store(index);
-
-        lopassfilter.setText(juce::String(int(round(audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->load()))), juce::dontSendNotification);
-        audioProcessor.resetAndPrepare();
+        audioProcessor.resetAndPrepare(); //TODO just prepare?
     }
 }
-
-void CombinerAudioProcessorEditor::sliderValueChanged(juce::Slider* slider) 
-{
-    if (slider == &lpfFreqSlider || slider == &hpfFreqSlider)
-    {
-        bool linked = *(audioProcessor.parameters.getRawParameterValue(LINKED_ID)) > 0.5f;
-        double newVal = slider->getValue();
-
-        if (linked) {
-            audioProcessor.setBothCutoffFrequencies(newVal, false, true);
-            lpfFreqSlider.setValue(newVal);
-            hpfFreqSlider.setValue(newVal);
-        }
-        else if (slider == &lpfFreqSlider)
-            audioProcessor.setLowPassCutoff(newVal, false, true);
-        else if (slider == &hpfFreqSlider)
-            audioProcessor.setHighPassCutoff(newVal, false, true);
-    }
-}
-
-void CombinerAudioProcessorEditor::sliderDragStarted(juce::Slider* slider) {}
-void CombinerAudioProcessorEditor::sliderDragEnded(juce::Slider* slider) {}
 
 void CombinerAudioProcessorEditor::setupLinkButton()
 {
@@ -230,19 +222,19 @@ void CombinerAudioProcessorEditor::setupFrequencySliders()
     lpfFreqSlider.setNumDecimalPlacesToDisplay(1);
     lpfFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     lpfFreqSlider.setTextValueSuffix(juce::String("Hz"));
-    lpfFreqSlider.setValue(audioProcessor.getLowPassCutoff());
+    lpfFreqSlider.setValue(audioProcessor.parameters.getRawParameterValue(LOPASS_FREQ_ID)->load());
     lpfFreqSlider.setSkewFactor(0.25f);
-    lpfFreqSlider.addListener(this);
 
     hpfFreqSlider.setDoubleClickReturnValue(true, 750.0f);
     hpfFreqSlider.setRange(20.0, 20000.0);
     hpfFreqSlider.setNumDecimalPlacesToDisplay(1);
     hpfFreqSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     hpfFreqSlider.setTextValueSuffix(juce::String("Hz"));
-    hpfFreqSlider.setValue(audioProcessor.getHighPassCutoff());
+    hpfFreqSlider.setValue(audioProcessor.parameters.getRawParameterValue(HIPASS_FREQ_ID)->load());
     hpfFreqSlider.setSkewFactor(0.25f);
-    hpfFreqSlider.addListener(this);
 
     addAndMakeVisible(lpfFreqSlider);
     addAndMakeVisible(hpfFreqSlider);
+
+    audioProcessor.updateFrequencies(true, true);
 }

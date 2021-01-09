@@ -12,20 +12,22 @@
 //==============================================================================
 CombinerAudioProcessor::CombinerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                       .withInput  ("Input 2", juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ),
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+        .withInput("Input 2", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    ),
 #endif
     parameters(*this, nullptr, juce::Identifier("Combiner"),
         {
             std::make_unique<juce::AudioParameterBool>(LINKED_ID, LINKED_NAME, true),
-            std::make_unique<juce::AudioParameterChoice>(SLOPE_ID, SLOPE_NAME, slopes, 1)
+            std::make_unique<juce::AudioParameterChoice>(SLOPE_ID, SLOPE_NAME, slopes, 1),
+            std::make_unique<juce::AudioParameterFloat>(LOPASS_FREQ_ID, LOPASS_FREQ_NAME, frequencyRange, 750.0f),
+            std::make_unique<juce::AudioParameterFloat>(HIPASS_FREQ_ID, HIPASS_FREQ_NAME, frequencyRange, 750.0f)
         })
 {
 }
@@ -224,51 +226,14 @@ void CombinerAudioProcessor::resetAndPrepare()
     prepare();
 }
 
-void CombinerAudioProcessor::setBothCutoffFrequencies(double newCutoff, bool callReset, bool callPrepare)
+void CombinerAudioProcessor::updateFrequencies(bool callReset, bool callPrepare)
 {
-    fc[0] = newCutoff;
-    fc[1] = newCutoff;
-    if (callReset)
-        reset();
-    if (callPrepare)
-        prepare();
+    fc[0] = parameters.getRawParameterValue(LOPASS_FREQ_ID)->load();
+    fc[1] = parameters.getRawParameterValue(HIPASS_FREQ_ID)->load();
+
+    if (callReset) reset();
+    if (callPrepare) prepare();
 }
-
-void CombinerAudioProcessor::setCutoffFrequencies(double newLow, double newHigh, bool callReset, bool callPrepare)
-{
-    fc[0] = newLow;
-    fc[1] = (*parameters.getRawParameterValue(LINKED_ID) > 0.5F) ? newLow : newHigh;
-    if (callReset)
-        reset();
-    if (callPrepare)
-        prepare();
-}
-
-void CombinerAudioProcessor::setLowPassCutoff(double newLow, bool callReset, bool callPrepare)
-{
-    fc[0] = newLow;
-    if (*parameters.getRawParameterValue(LINKED_ID) > 0.5F)
-        fc[1] = newLow;
-    if (callReset)
-        reset();
-    if (callPrepare)
-        prepare();
-}
-
-void CombinerAudioProcessor::setHighPassCutoff(double newHigh, bool callReset, bool callPrepare)
-{
-    fc[1] = newHigh;
-    if (*parameters.getRawParameterValue(LINKED_ID) > 0.5F)
-        fc[0] = newHigh;
-    if (callReset)
-        reset();
-    if (callPrepare)
-        prepare();
-}
-
-double CombinerAudioProcessor::getLowPassCutoff() { return fc[0]; }
-
-double CombinerAudioProcessor::getHighPassCutoff() { return fc[1]; }
 
 void CombinerAudioProcessor::prepHelper(FilterType type)
 {
