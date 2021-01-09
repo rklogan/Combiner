@@ -15,8 +15,6 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
 {
     setResizable(true, true);
     setupLinkButton();
-    setupSlopeButtons();
-    setupFrequencySliders();
 
     title.setFont(juce::Font(30.0f, juce::Font::bold));
     title.setText("COMBINER", juce::dontSendNotification);
@@ -51,6 +49,7 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
         audioProcessor.parameters, LINKED_ID, linkButton
     );
     audioProcessor.parameters.addParameterListener(LINKED_ID, this);
+
     audioProcessor.parameters.addParameterListener(SLOPE_ID, this);
 
     lpfSliderAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(
@@ -62,6 +61,9 @@ CombinerAudioProcessorEditor::CombinerAudioProcessorEditor (CombinerAudioProcess
     audioProcessor.parameters.addParameterListener(LOPASS_FREQ_ID, this);
     audioProcessor.parameters.addParameterListener(HIPASS_FREQ_ID, this);
     
+    setupSlopeButtons();
+    setupFrequencySliders();
+
     setSize (600, 300);
 }
 
@@ -130,7 +132,6 @@ void CombinerAudioProcessorEditor::parameterChanged(const juce::String& paramete
     }
     else if (parameterID == LOPASS_FREQ_ID || parameterID == HIPASS_FREQ_ID)
     {
-        lopassfilter.setText("here", juce::dontSendNotification);
         if (*(audioProcessor.parameters.getRawParameterValue(LINKED_ID)) > 0.5f)
         {
             if (parameterID == LOPASS_FREQ_ID) {
@@ -164,7 +165,7 @@ void CombinerAudioProcessorEditor::buttonClicked(juce::Button* button)
         for (; index < 3; ++index)
             if (slopeButtons.getUnchecked(index) == button) break;
         audioProcessor.parameters.getRawParameterValue(SLOPE_ID)->store(index);
-        audioProcessor.resetAndPrepare(); //TODO just prepare?
+        audioProcessor.resetAndPrepare(); 
     }
 }
 

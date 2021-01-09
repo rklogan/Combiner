@@ -30,6 +30,7 @@ class CombinerAudioProcessor  : public juce::AudioProcessor
 {
 public:
     juce::AudioProcessorValueTreeState parameters;
+    juce::String XMLDATA{ "" };
 
     //==============================================================================
     CombinerAudioProcessor();

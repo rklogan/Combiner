@@ -34,6 +34,7 @@ CombinerAudioProcessor::CombinerAudioProcessor()
 
 CombinerAudioProcessor::~CombinerAudioProcessor()
 {
+
 }
 
 //==============================================================================
@@ -180,15 +181,52 @@ juce::AudioProcessorEditor* CombinerAudioProcessor::createEditor()
 //==============================================================================
 void CombinerAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    juce::XmlElement* combiner = new juce::XmlElement(juce::String("Combiner"));
+    juce::XmlElement* hpf = new juce::XmlElement(juce::String("PARAM"));
+    juce::XmlElement* linked = new juce::XmlElement(juce::String("PARAM"));
+    juce::XmlElement* lpf = new juce::XmlElement(juce::String("PARAM"));
+    juce::XmlElement* slope = new juce::XmlElement(juce::String("PARAM"));
+
+    hpf->setAttribute(juce::Identifier("id"), HIPASS_FREQ_ID);
+    hpf->setAttribute(
+        juce::Identifier("value"),
+        juce::String(fc[1])
+    );
+
+    linked->setAttribute(juce::Identifier("id"), LINKED_ID);
+    linked->setAttribute(
+        juce::Identifier("value"),
+        juce::String(parameters.getRawParameterValue(LINKED_ID)->load())
+    );
+    
+    lpf->setAttribute(juce::Identifier("id"), LOPASS_FREQ_ID);
+    lpf->setAttribute(
+        juce::Identifier("value"),
+        juce::String(fc[0])
+    );
+
+    slope->setAttribute(juce::Identifier("id"), SLOPE_ID);
+    slope->setAttribute(
+        juce::Identifier("value"),
+        juce::String(parameters.getRawParameterValue(SLOPE_ID)->load())
+    );
+
+    combiner->addChildElement(hpf);
+    combiner->addChildElement(linked);
+    combiner->addChildElement(lpf);
+    combiner->addChildElement(slope);
+
+    combiner->writeTo(juce::File("write.log"));
+    copyXmlToBinary(*combiner, destData);
 }
 
 void CombinerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+    xmlState->writeTo(juce::File("read.log"));
+    if (xmlState.get() != nullptr)
+        if (xmlState->hasTagName(parameters.state.getType()))
+            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
 }
 
 //==============================================================================

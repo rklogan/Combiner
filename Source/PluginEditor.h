@@ -27,7 +27,7 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    //==============================================================================
+    //========================== EVENT LISTENERS ===================================
     void parameterChanged(const juce::String& parameterID, float newValue) override;
 
     void buttonStateChanged(juce::Button* button) override;
