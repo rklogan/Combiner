@@ -38,8 +38,8 @@ Once the project is built as a VST, simply located the 'Combiner.vst3' file in y
 
 # Future Developments
 - Undo/Redo is currently not implemented.
-- Gain sliders and mute/solo buttons will be added for each input.
-- An output level control will also be added
+- Gain sliders and mute/solo/flip polarity buttons will be added for each input.
+- An output level control will also be added.
 - The graphics on the UI need an overhaul.
 
 # Known Issues
