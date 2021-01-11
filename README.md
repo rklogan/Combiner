@@ -2,7 +2,7 @@
 Combiner is a VST plug-in for combining low-frequency information from one input signal and high-frequency information from another. 
 
 # Motivation
-Split-band processing is an important technique in any audio engineer's toolbelt, where a single input source is 'split' into multiple frequency band which can be individually processed and recombined later. The premis for Combiner is the opposite: given multiple full-range input signals, combine only one frequency band from each to produce a single output signal.  
+Split-band processing is an important technique in any audio engineer's toolbelt, where a single input source is 'split' into multiple frequency band which can be individually processed and recombined later. The premise for Combiner is the opposite: given multiple full-range input signals, combine only one frequency band from each to produce a single output signal.  
   
 This process can be useful, for example, to blend a clean DI track and a distorted amp track from a bass guitar performance. While the same effect could be achieved using a low-pass and a high-pass filter on each of the respective tracks, Combiner provides the convenience of having both filters contained in a single plug-in, and, in 'Linked Mode' allows the engineer to adjust both filters with a single control.
 
