@@ -29,7 +29,7 @@ This process can be useful, for example, to blend a clean DI track and a distort
    - juce_graphics
    - juce_gui_basics
    - juce_gui_extra
-3. If any are absent, you the '+' button in the Modules panel and locate the files on your device to add them.
+3. If any are absent, use the '+' button in the Modules panel and locate the files on your device to add them.
 4. Launch the project in your IDE, and it will be configured to build the project.
 5. Set the build target to VST3 to build as a plugin.
 
